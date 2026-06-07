@@ -1,0 +1,41 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Force LF line endings for source code
+*.ts        text eol=lf
+*.tsx       text eol=lf
+*.js        text eol=lf
+*.cjs       text eol=lf
+*.mjs       text eol=lf
+*.json      text eol=lf
+*.jsonc     text eol=lf
+*.md        text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+*.sh        text eol=lf
+*.bash      text eol=lf
+
+# Shell scripts must have LF
+*.sh        text eol=lf
+
+# Binary files (no diff, no merge conflicts)
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.gif       binary
+*.ico       binary
+*.svg       binary
+*.woff      binary
+*.woff2     binary
+*.ttf       binary
+*.eot       binary
+*.mp4       binary
+*.webm      binary
+*.mov       binary
+*.zip       binary
+*.tar.gz    binary
+*.tgz       binary
+
+# Export GitHub linguist overrides
+docs/*      linguist-documentation
+tests/*     linguist-test

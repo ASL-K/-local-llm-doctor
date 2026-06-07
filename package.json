@@ -1,0 +1,79 @@
+{
+  "name": "local-llm-doctor",
+  "version": "0.1.0",
+  "description": "我电脑能跑哪个 LLM？一行命令告诉你，断网也能用。 | Find which LLM actually runs on your hardware, offline-first.",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "local-llm-doctor": "./bin/local-llm-doctor.js"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "src/models/table.json",
+    "README.md",
+    "README.zh-CN.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc && chmod +x bin/local-llm-doctor.js",
+    "dev": "tsc --watch",
+    "start": "node bin/local-llm-doctor.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "vitest run --config vitest.e2e.config.ts",
+    "lint": "eslint src/",
+    "format": "prettier --write .",
+    "verify:models": "node --import tsx scripts/verify-models.ts",
+    "prepublishOnly": "npm run build && npm test && npm run verify:models"
+  },
+  "dependencies": {
+    "systeminformation": "^5.23.0",
+    "commander": "^12.0.0",
+    "chalk": "^5.3.0",
+    "cli-table3": "^0.6.5",
+    "boxen": "^7.1.0",
+    "ora": "^8.0.0",
+    "string-width": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/string-width": "^7.0.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^9.0.0",
+    "prettier": "^3.3.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "llm",
+    "local-llm",
+    "ai",
+    "ollama",
+    "llama.cpp",
+    "hardware",
+    "gpu",
+    "vram",
+    "quantization",
+    "gguf",
+    "qwen",
+    "llama",
+    "claude",
+    "chatgpt"
+  ],
+  "license": "MIT",
+  "author": "ASL-K",
+  "homepage": "https://github.com/ASL-K/local-llm-doctor",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ASL-K/local-llm-doctor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ASL-K/local-llm-doctor/issues"
+  }
+}
