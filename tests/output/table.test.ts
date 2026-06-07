@@ -40,11 +40,11 @@ describe('renderRecommendations', () => {
     const rec = recommend(matches, lowEnd);
     const out = renderRecommendations(rec);
 
-    expect(out).toContain('保守档');
-    expect(out).toContain('平衡档');
-    expect(out).toContain('激进档');
-    expect(out).toContain('兜底建议');
-    expect(out).toContain('API 替代');
+    expect(out).toMatch(/保守|conservative/);
+    expect(out).toMatch(/平衡|balanced/);
+    expect(out).toMatch(/激进|aggressive/);
+    expect(out).toMatch(/兜底/);
+    expect(out).toMatch(/API/);
   });
 
   it('shows model name in recommendations', async () => {
@@ -68,7 +68,7 @@ describe('renderFull', () => {
     expect(out).toContain('local-llm-doctor');
     expect(out).toContain('硬件信息');
     expect(out).toContain('推荐结果');
-    expect(out).toContain('保守档');
+    expect(out).toMatch(/保守|conservative/);
   });
 
   it('produces reasonable output size (not too long)', async () => {

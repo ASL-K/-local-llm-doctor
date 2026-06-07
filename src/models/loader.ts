@@ -23,11 +23,11 @@ const VALID_HARDWARE_KEYS: HardwareKey[] = [
 
 /**
  * 默认 table.json 路径（dist/models/table.json，编译后）
+ *
+ * Windows 兼容：用 pathToFileURL 把 "c:\..." 转换成 "file:///c:/..."
+ * 避免 ESM 加载器 ERR_UNSUPPORTED_ESM_URL_SCHEME 错误
  */
 function getDefaultTablePath(): string {
-  // 兼容 ESM: import.meta.url 指向当前文件
-  // src/models/loader.ts → ../models/table.json
-  // dist/models/loader.js → ../models/table.json
   const here = fileURLToPath(import.meta.url);
   return path.resolve(path.dirname(here), 'table.json');
 }

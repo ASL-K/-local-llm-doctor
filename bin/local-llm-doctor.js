@@ -4,10 +4,10 @@
 // Copyright (c) 2026 ASL-K. MIT License.
 // =====================================================================
 
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
 
-// ---- 1. Node version check (Fix 漏洞 2: 强制校验) ----
+// ---- 1. Node version check ----
 const NODE_MAJOR = Number(process.versions.node.split('.')[0]);
 if (NODE_MAJOR < 18) {
   console.error(`\x1b[31m✖\x1b[0m local-llm-doctor 需要 Node.js 18 或更高版本`);
@@ -24,8 +24,11 @@ const __dirname = path.dirname(__filename);
 const distPath = path.resolve(__dirname, '..', 'dist', 'index.js');
 
 // ---- 3. Hand off to compiled TS output ----
+// Windows 兼容：必须用 pathToFileURL 把 "c:\..." 转换成 "file:///c:/..."
+// 否则 ESM 加载器抛 ERR_UNSUPPORTED_ESM_URL_SCHEME
 try {
-  await import(distPath);
+  const distUrl = pathToFileURL(distPath).href;
+  await import(distUrl);
 } catch (err) {
   if (err && typeof err === 'object' && 'code' in err && err.code === 'ERR_MODULE_NOT_FOUND') {
     console.error(`\x1b[31m✖\x1b[0m 找不到 dist/index.js`);

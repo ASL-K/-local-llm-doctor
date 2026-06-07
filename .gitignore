@@ -55,3 +55,4 @@ test-output/
 
 # User-specific local config
 .lmdoctorrc.local
+nul
