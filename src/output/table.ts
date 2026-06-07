@@ -13,6 +13,7 @@
 import Table from 'cli-table3';
 import type { HardwareProfile } from '../types.js';
 import type { MatchResult, RecommendedModels } from '../models/types.js';
+import { formatFitLevel, colorizeTier, colorizeTitle, colorizeFallback } from './format.js';
 
 const REASON_MAX_WIDTH = 50;
 
@@ -113,10 +114,10 @@ export function renderHardware(hw: HardwareProfile): string {
 /**
  * 渲染单个档位的推荐表
  */
-function renderTierTable(tierName: string, matches: MatchResult[]): string {
+function renderTierTable(tierName: '保守' | '平衡' | '激进', matches: MatchResult[]): string {
   const t = new Table({
-    head: [tierName, '模型', '量化', '适配度', 'TPS~', 'Q', '原因'],
-    colWidths: [10, 22, 8, 13, 6, 4, REASON_MAX_WIDTH],
+    head: ['', '模型', '量化', '适配度', 'TPS~', 'Q', '原因'],
+    colWidths: [10, 22, 8, 16, 6, 4, REASON_MAX_WIDTH],
     wordWrap: true,
   });
 
@@ -125,12 +126,15 @@ function renderTierTable(tierName: string, matches: MatchResult[]): string {
     return t.toString();
   }
 
-  for (const m of matches) {
+  for (let i = 0; i < matches.length; i++) {
+    const m = matches[i]!;
+    // 第 1 列：1st 行显示"档位 + 中档名"，其余空
+    const label = i === 0 ? `${colorizeTier(mapTierName(tierName))} (${tierName})` : '';
     t.push([
-      '',
+      label,
       m.modelName,
       m.quantLevel || '-',
-      m.fitLevel,
+      formatFitLevel(m.fitLevel),
       String(m.estimatedTps || 0),
       String(m.qualityScore),
       truncate(m.reason, REASON_MAX_WIDTH),
@@ -140,22 +144,29 @@ function renderTierTable(tierName: string, matches: MatchResult[]): string {
   return t.toString();
 }
 
+/** 内部：中档名 → 英文档位 */
+function mapTierName(name: '保守' | '平衡' | '激进'): 'conservative' | 'balanced' | 'aggressive' {
+  if (name === '保守') return 'conservative';
+  if (name === '平衡') return 'balanced';
+  return 'aggressive';
+}
+
 /**
  * 渲染 3 档推荐（conservative / balanced / aggressive）
  */
 export function renderRecommendations(rec: RecommendedModels): string {
   const sections: string[] = [];
 
-  sections.push('┌─ 保守档（开箱即用） ─────────────────────────────────────────────────────┐');
+  sections.push('┌─ ' + colorizeTier('conservative') + ' 档（保守 / 开箱即用） ──────────────────────────────────┐');
   sections.push(renderTierTable('保守', rec.conservative));
   sections.push('');
-  sections.push('├─ 平衡档（默认推荐） ─────────────────────────────────────────────────────┤');
+  sections.push('├─ ' + colorizeTier('balanced') + ' 档（平衡 / 默认推荐） ──────────────────────────────────┤');
   sections.push(renderTierTable('平衡', rec.balanced));
   sections.push('');
-  sections.push('├─ 激进档（高配挑战） ─────────────────────────────────────────────────────┤');
+  sections.push('├─ ' + colorizeTier('aggressive') + ' 档（激进 / 高配挑战） ──────────────────────────────────┤');
   sections.push(renderTierTable('激进', rec.aggressive));
   sections.push('');
-  sections.push('└─ 兜底建议 ──────────────────────────────────────────────────────────────┘');
+  sections.push('└─ ' + colorizeFallback() + ' ─────────────────────────────────────────────────────┘');
   sections.push(renderFallback(rec.fallback));
 
   return sections.join('\n');
@@ -186,7 +197,7 @@ export function renderFull(hw: HardwareProfile, rec: RecommendedModels): string 
   const sections: string[] = [];
 
   sections.push('╔══════════════════════════════════════════════════════════════╗');
-  sections.push('║  local-llm-doctor v0.2 — 我电脑能跑哪个 LLM？             ║');
+  sections.push('║  ' + colorizeTitle('local-llm-doctor v0.2 — 我电脑能跑哪个 LLM？') + '     ║');
   sections.push('╚══════════════════════════════════════════════════════════════╝');
   sections.push('');
   sections.push('── 硬件信息 ─────────────────────────────────────────────────────────');
