@@ -16,7 +16,8 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc && chmod +x bin/local-llm-doctor.js",
+    "build": "tsc && npm run copy-assets && chmod +x bin/local-llm-doctor.js",
+    "copy-assets": "node -e \"const fs=require('fs');const path=require('path');const src='src/models/table.json';const dest='dist/models/table.json';fs.mkdirSync(path.dirname(dest),{recursive:true});fs.copyFileSync(src,dest);console.log('Copied '+src+' to '+dest);\"",
     "dev": "tsc --watch",
     "start": "node bin/local-llm-doctor.js",
     "test": "vitest run",
