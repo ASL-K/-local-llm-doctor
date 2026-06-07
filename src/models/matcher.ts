@@ -58,8 +58,16 @@ function matchHardwareKey(gpu: GpuInfo | null, cpu: HardwareProfile['cpu'], memo
     return 'm3_pro_18gb';
   }
 
-  // NVIDIA：按显存分档
+  // NVIDIA：按显存分档（v0.5.2 加 A100/H100）
   if (gpu?.vendor === 'nvidia') {
+    if (gpu.vram >= 80) {
+      // v0.5.2: 80GB+ 数据中心卡按 model 区分 A100 / H100
+      // （gpu.model 字符串匹配）
+      if (gpu.model.toLowerCase().includes('h100')) return 'h100_80gb';
+      if (gpu.model.toLowerCase().includes('a100')) return 'a100_80gb';
+      // 未知 80GB 显卡 → 当 H100 算（最新）
+      return 'h100_80gb';
+    }
     if (gpu.vram >= 24) return 'rtx_4090_24gb';
     if (gpu.vram >= 20) return 'rtx_3090_24gb';
     if (gpu.vram >= 12) return 'rtx_3060_12gb';

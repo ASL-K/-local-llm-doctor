@@ -418,9 +418,8 @@
         "rtx_3090_24gb": 0,
         "rtx_3060_12gb": 0,
         "rtx_4060_8gb":  0,
-        "cpu_8c_32gb":   0,
-        "cpu_4c_16gb":   0,
-        "cpu_2c_8gb":    0
+        "a100_80gb":     8,
+        "h100_80gb":     14
       },
       "best_for": ["高难度推理", "代码生成", "长文理解"],
       "license": "Apache-2.0",
@@ -449,9 +448,8 @@
         "rtx_3090_24gb": 0,
         "rtx_3060_12gb": 0,
         "rtx_4060_8gb":  0,
-        "cpu_8c_32gb":   0,
-        "cpu_4c_16gb":   0,
-        "cpu_2c_8gb":    0
+        "a100_80gb":     10,
+        "h100_80gb":     18
       },
       "best_for": ["英文对话", "多语言", "推理任务"],
       "license": "Llama-3.3 Community License",
@@ -480,9 +478,8 @@
         "rtx_3090_24gb": 0,
         "rtx_3060_12gb": 0,
         "rtx_4060_8gb":  0,
-        "cpu_8c_32gb":   0,
-        "cpu_4c_16gb":   0,
-        "cpu_2c_8gb":    0
+        "a100_80gb":     3,
+        "h100_80gb":     5
       },
       "best_for": ["高难度代码", "数学推理", "长文理解"],
       "license": "DeepSeek License (免费商用)",
@@ -543,9 +540,8 @@
         "rtx_3090_24gb": 0,
         "rtx_3060_12gb": 0,
         "rtx_4060_8gb":  0,
-        "cpu_8c_32gb":   0,
-        "cpu_4c_16gb":   0,
-        "cpu_2c_8gb":    0
+        "a100_80gb":     9,
+        "h100_80gb":     16
       },
       "best_for": ["中文旗舰", "长文理解", "代码生成"],
       "license": "Apache-2.0",

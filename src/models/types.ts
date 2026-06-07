@@ -31,8 +31,10 @@ export interface QuantLevel {
 export type QuantLevelName = 'Q2_K' | 'Q3_K_M' | 'Q4_K_M' | 'Q5_K_M' | 'Q6_K' | 'Q8_0';
 
 /**
- * 8 个标准硬件 key，用于 tps_estimate 查表。
- * 不在表里的硬件 → 走插值（v0.2 实现）或显示 N/A。
+ * 10 个标准硬件 key，用于 tps_estimate 查表。
+ * 不在表里的硬件 → 显示 N/A（v0.4.5 改 N/A，不用 0）。
+ *
+ * v0.5.2 加 a100_80gb / h100_80gb 满足高显存用户。
  */
 export type HardwareKey =
   | 'm3_pro_18gb'      // Apple M3 Pro 18GB unified
@@ -40,6 +42,8 @@ export type HardwareKey =
   | 'rtx_3090_24gb'    // NVIDIA RTX 3090
   | 'rtx_3060_12gb'    // NVIDIA RTX 3060
   | 'rtx_4060_8gb'     // NVIDIA RTX 4060
+  | 'a100_80gb'        // NVIDIA A100 80GB（数据中心卡）
+  | 'h100_80gb'        // NVIDIA H100 80GB（数据中心卡）
   | 'cpu_8c_32gb'      // 8 核 32GB（CPU 推理）
   | 'cpu_4c_16gb'      // 4 核 16GB
   | 'cpu_2c_8gb';      // 2 核 8GB（5.64GB 用户的故事）

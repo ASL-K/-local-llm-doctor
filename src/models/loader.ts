@@ -18,7 +18,8 @@ import { ModelNotFoundError } from '../utils/errors.js';
 const VALID_QUANT_LEVELS: QuantLevelName[] = ['Q2_K', 'Q3_K_M', 'Q4_K_M', 'Q5_K_M', 'Q6_K', 'Q8_0'];
 const VALID_HARDWARE_KEYS: HardwareKey[] = [
   'm3_pro_18gb', 'rtx_4090_24gb', 'rtx_3090_24gb', 'rtx_3060_12gb',
-  'rtx_4060_8gb', 'cpu_8c_32gb', 'cpu_4c_16gb', 'cpu_2c_8gb',
+  'rtx_4060_8gb', 'a100_80gb', 'h100_80gb',  // v0.5.2 数据中心卡
+  'cpu_8c_32gb', 'cpu_4c_16gb', 'cpu_2c_8gb',
 ];
 
 /**
