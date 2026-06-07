@@ -423,6 +423,163 @@
       "tier_balanced": true,
       "tier_aggressive": false,
       "release_date": "2024-05"
+    },
+    {
+      "id": "qwen3-235b-a22b",
+      "name": "Qwen3-235B-A22B (MoE)",
+      "family": "Qwen3",
+      "params_b": 235,
+      "active_b": 22,
+      "type": "moe",
+      "context_k": 32,
+      "note": "Qwen3 旗舰 MoE 模型，235B 总参 / 22B 激活",
+      "quant_levels": {
+        "Q2_K":   { "vram_min": 65,  "ram_min": 65,  "quality_score": 60 },
+        "Q3_K_M": { "vram_min": 88,  "ram_min": 88,  "quality_score": 70 },
+        "Q4_K_M": { "vram_min": 115, "ram_min": 115, "quality_score": 78 }
+      },
+      "tps_estimate": {
+        "m3_pro_18gb":   0,
+        "rtx_4090_24gb": 0,
+        "rtx_3090_24gb": 0,
+        "rtx_3060_12gb": 0,
+        "rtx_4060_8gb":  0,
+        "cpu_8c_32gb":   0,
+        "cpu_4c_16gb":   0,
+        "cpu_2c_8gb":    0
+      },
+      "best_for": ["高难度推理", "代码生成", "长文理解"],
+      "license": "Apache-2.0",
+      "huggingface_id": "Qwen/Qwen3-235B-A22B-GGUF",
+      "tier_conservative": false,
+      "tier_balanced": false,
+      "tier_aggressive": true,
+      "release_date": "2025-04"
+    },
+    {
+      "id": "llama-3.3-70b",
+      "name": "Llama-3.3-70B",
+      "family": "Llama-3",
+      "params_b": 70,
+      "active_b": 70,
+      "type": "dense",
+      "context_k": 128,
+      "quant_levels": {
+        "Q2_K":   { "vram_min": 28, "ram_min": 28, "quality_score": 65 },
+        "Q3_K_M": { "vram_min": 35, "ram_min": 35, "quality_score": 72 },
+        "Q4_K_M": { "vram_min": 42, "ram_min": 42, "quality_score": 78 }
+      },
+      "tps_estimate": {
+        "m3_pro_18gb":   0,
+        "rtx_4090_24gb": 0,
+        "rtx_3090_24gb": 0,
+        "rtx_3060_12gb": 0,
+        "rtx_4060_8gb":  0,
+        "cpu_8c_32gb":   0,
+        "cpu_4c_16gb":   0,
+        "cpu_2c_8gb":    0
+      },
+      "best_for": ["英文对话", "多语言", "推理任务"],
+      "license": "Llama-3.3 Community License",
+      "huggingface_id": "meta-llama/Llama-3.3-70B-Instruct-GGUF",
+      "tier_conservative": false,
+      "tier_balanced": false,
+      "tier_aggressive": true,
+      "release_date": "2024-12"
+    },
+    {
+      "id": "deepseek-v3-0324",
+      "name": "DeepSeek-V3 (0324)",
+      "family": "DeepSeek",
+      "params_b": 671,
+      "active_b": 37,
+      "type": "moe",
+      "context_k": 64,
+      "note": "DeepSeek 旗舰 MoE 671B 总参 / 37B 激活（本地需要 A100 80GB × 2）",
+      "quant_levels": {
+        "Q2_K":   { "vram_min": 220, "ram_min": 220, "quality_score": 72 },
+        "Q3_K_M": { "vram_min": 290, "ram_min": 290, "quality_score": 80 }
+      },
+      "tps_estimate": {
+        "m3_pro_18gb":   0,
+        "rtx_4090_24gb": 0,
+        "rtx_3090_24gb": 0,
+        "rtx_3060_12gb": 0,
+        "rtx_4060_8gb":  0,
+        "cpu_8c_32gb":   0,
+        "cpu_4c_16gb":   0,
+        "cpu_2c_8gb":    0
+      },
+      "best_for": ["高难度代码", "数学推理", "长文理解"],
+      "license": "DeepSeek License (免费商用)",
+      "huggingface_id": "deepseek-ai/DeepSeek-V3-0324-GGUF",
+      "tier_conservative": false,
+      "tier_balanced": false,
+      "tier_aggressive": true,
+      "release_date": "2025-03"
+    },
+    {
+      "id": "gemma-3-27b",
+      "name": "Gemma-3-27B",
+      "family": "Gemma-3",
+      "params_b": 27,
+      "active_b": 27,
+      "type": "dense",
+      "context_k": 128,
+      "quant_levels": {
+        "Q2_K":   { "vram_min": 11, "ram_min": 11, "quality_score": 68 },
+        "Q3_K_M": { "vram_min": 14, "ram_min": 14, "quality_score": 75 },
+        "Q4_K_M": { "vram_min": 18, "ram_min": 18, "quality_score": 80 }
+      },
+      "tps_estimate": {
+        "m3_pro_18gb":   0,
+        "rtx_4090_24gb": 8,
+        "rtx_3090_24gb": 7,
+        "rtx_3060_12gb": 0,
+        "rtx_4060_8gb":  0,
+        "cpu_8c_32gb":   0,
+        "cpu_4c_16gb":   0,
+        "cpu_2c_8gb":    0
+      },
+      "best_for": ["Google 生态", "多语言", "代码"],
+      "license": "Gemma License",
+      "huggingface_id": "google/gemma-3-27b-it-GGUF",
+      "tier_conservative": false,
+      "tier_balanced": true,
+      "tier_aggressive": true,
+      "release_date": "2025-03"
+    },
+    {
+      "id": "qwen2.5-72b",
+      "name": "Qwen2.5-72B",
+      "family": "Qwen2.5",
+      "params_b": 72,
+      "active_b": 72,
+      "type": "dense",
+      "context_k": 128,
+      "note": "Qwen2.5 旗舰（v0.4 加的 70B 级别大模型，v3 系列未出 72B）",
+      "quant_levels": {
+        "Q2_K":   { "vram_min": 30, "ram_min": 30, "quality_score": 68 },
+        "Q3_K_M": { "vram_min": 38, "ram_min": 38, "quality_score": 75 },
+        "Q4_K_M": { "vram_min": 45, "ram_min": 45, "quality_score": 80 }
+      },
+      "tps_estimate": {
+        "m3_pro_18gb":   0,
+        "rtx_4090_24gb": 0,
+        "rtx_3090_24gb": 0,
+        "rtx_3060_12gb": 0,
+        "rtx_4060_8gb":  0,
+        "cpu_8c_32gb":   0,
+        "cpu_4c_16gb":   0,
+        "cpu_2c_8gb":    0
+      },
+      "best_for": ["中文旗舰", "长文理解", "代码生成"],
+      "license": "Apache-2.0",
+      "huggingface_id": "Qwen/Qwen2.5-72B-Instruct-GGUF",
+      "tier_conservative": false,
+      "tier_balanced": false,
+      "tier_aggressive": true,
+      "release_date": "2024-09"
     }
   ]
 }
