@@ -5,9 +5,10 @@
 > Find which LLM actually runs on your hardware. Offline-first, no telemetry, no model downloads, < 300ms.
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
-![Node: 18+](https://img.shields.io/badge/node-18%2B-green.svg)
+![Node: 20+](https://img.shields.io/badge/node-20%2B-green.svg)
 ![TypeScript: 5.x](https://img.shields.io/badge/typescript-5.x-blue.svg)
-![Tests: 115/115](https://img.shields.io/badge/tests-115%2F115-brightgreen.svg)
+![Tests: 193/193](https://img.shields.io/badge/tests-193%2F193-brightgreen.svg)
+[![CI](https://github.com/ASL-K/-local-llm-doctor/actions/workflows/test.yml/badge.svg)](https://github.com/ASL-K/-local-llm-doctor/actions)
 
 [English](#english) · [简体中文](#简体中文)
 
@@ -18,6 +19,17 @@
 ## 简体中文
 
 **local-llm-doctor** 是一个 CLI 工具，**告诉你电脑能跑哪个 LLM**。零依赖、零网络请求、< 300ms 出结果。
+
+**v0.5 特性**：
+- ✅ 5 个检测器（OS / CPU / 内存 / 磁盘 / GPU）
+- ✅ 19 个模型（Qwen3 全系 + Llama 3.3 + DeepSeek-V3 + Gemma 3 + Phi-4 + Mistral + Yi + GLM-4）
+- ✅ 3 档推荐：保守档（开箱即用）/ 平衡档（默认推荐）/ 激进档（高配挑战）
+- ✅ 双语 CLI：`--lang zh`（默认）/ `--lang en`
+- ✅ JSON 模式：脚本友好（`--json`）
+- ✅ 兜底建议：API 替代 + 升级建议
+- ✅ Windows / macOS / Linux 真实跑通（含 WSL 1/2 识别）
+- ✅ GitHub Action CI：193/193 测试自动跑
+- ✅ GPU 识别：RTX 4090 / 3090 / 3060 / 4060 + A100-80GB / H100-80GB
 
 ### 为什么需要它？
 
@@ -124,6 +136,36 @@ $ local-llm-doctor
 
 > **v0.1 输出格式**：JSON（开发者友好 / 适合自动化）
 > **v0.2 输出格式**：cli-table3 美化表格（终端用户友好）
+> **v0.4 输出格式**：emoji + 简洁 + 总结（默认中文，--lang en 切英文）
+
+#### v0.4 真实输出示例（5.87GB WSL2 Ubuntu）
+
+```bash
+$ local-llm-doctor
+
+🚀 local-llm-doctor v0.4 — 我电脑能跑哪个 LLM？
+✓ ✓ 437ms · 你的电脑能跑 3 个模型（20 个总表里）
+
+🖥️ 硬件信息
+┌───────────────┬────────────────────────────────────────────────────┐
+│ 🖥️ OS         │ Ubuntu (WSL) (WSL2)                                 │
+│ 🧠 CPU        │ Gen Intel® Core™ i5-12500H (16核 16线程, x86_64)  │
+│ 🧠 内存       │ 总计 7.6 GB / 可用 5.9 GB                           │
+│ 💾 磁盘       │ 总计 1006.9 GB / 可用 944.6 GB (SSD)               │
+│ 🎮 GPU        │ 无独立显卡（用 CPU/集成显卡）                      │
+└───────────────┴────────────────────────────────────────────────────┘
+
+💡 推荐结果
+┌─ 🌱 保守档 │ 开箱即用 ────────────────────────────────────────────┐
+┌────────────────────┬─────────┬────────────┬───────┬────┬─────────────┐
+│ 模型               │ 量化    │ 适配度     │ TPS~  │ Q  │ 原因        │
+├────────────────────┼─────────┼────────────┼───────┼────┼─────────────┤
+│ Qwen3-1.7B         │ Q8_0    │ ○ 舒适     │ 6     │ 60 │ 5.9GB 充足  │
+│ Qwen2.5-Coder-7B   │ Q4_K_M  │ △ 偏紧     │ N/A   │ 73 │ 5.9GB 偏紧  │
+│ Qwen3-4B           │ Q5_K_M  │ △ 偏紧     │ 4     │ 71 │ 5.9GB 偏紧  │
+└────────────────────┴─────────┴────────────┴───────┴────┴─────────────┘
+...
+```
 
 ### 🎯 适合谁？
 
