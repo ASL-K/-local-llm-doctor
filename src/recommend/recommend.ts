@@ -20,6 +20,7 @@
 import type { MatchResult, RecommendedModels, FallbackSuggestion } from '../models/types.js';
 import { sortMatches } from '../models/matcher.js';
 import type { HardwareProfile } from '../types.js';
+import { t, type Lang, DEFAULT_LANG } from '../i18n/strings.js';
 
 const TOP_N_PER_TIER = 3;
 
@@ -49,6 +50,7 @@ function topN(matches: MatchResult[], n: number): MatchResult[] {
 function buildFallback(
   allMatches: MatchResult[],
   hardware: HardwareProfile,
+  lang: Lang = DEFAULT_LANG,
 ): FallbackSuggestion {
   // 找 3 档全空 + vram 需求最小的模型（这是"最容易实现"的）
   // 用 conservative 档为标杆（应该包含所有 1.7B / 4B）
@@ -63,8 +65,8 @@ function buildFallback(
       : hardware.memory.available;
 
     return {
-      reason: `你电脑的可用显存/内存仅 ${targetVram.toFixed(1)}GB，本地 LLM 全部跑不动`,
-      suggestion: '建议直接用云 API（OpenAI / Claude / DeepSeek）',
+      reason: t('fallback.cant_run', lang, { n: targetVram.toFixed(1) }),
+      suggestion: t('fallback.suggestion.body', lang),
       minRequiredVram: 2, // Qwen3-1.7B Q4_K_M 最低 2GB
       apiAlternatives: ['OpenAI GPT-4o-mini', 'Anthropic Claude 3.5 Haiku', 'DeepSeek Chat', '智谱 GLM-4-Flash', '通义 Qwen-Turbo'],
     };
@@ -76,8 +78,8 @@ function buildFallback(
   if (!tightest) {
     // 理论上不会到这里（前面已判空），但 TS 需要兜底
     return {
-      reason: '无法生成建议',
-      suggestion: '请重试或报告 issue',
+      reason: t('fallback.no_match', lang),
+      suggestion: t('fallback.no_match_suggestion', lang),
       minRequiredVram: null,
       apiAlternatives: [],
     };
@@ -87,22 +89,23 @@ function buildFallback(
     : hardware.memory.available;
   const gap = tightest.vramMin - currentVram; // 正数=还差，负数=有盈余
 
-  // 3 分支文案：
-  //   - 负数（gap < 0）：实际有盈余，旧文案"差 -0.9GB"是错的
+  // 3 分支文案（v0.3.1）：
+  //   - 负数（gap < 0）：实际有盈余
   //   - 零（gap === 0）：刚好够但无余裕
   //   - 正数（gap > 0）：还差这么多
   let reason: string;
+  const params = { need: tightest.vramMin, have: currentVram.toFixed(1) };
   if (gap < 0) {
-    reason = `推荐模型需 ${tightest.vramMin}GB，你有 ${currentVram.toFixed(1)}GB（盈余 ${(-gap).toFixed(1)}GB）`;
+    reason = t('fallback.surplus', lang, { ...params, gap: (-gap).toFixed(1) });
   } else if (gap === 0) {
-    reason = `推荐模型需 ${tightest.vramMin}GB，你有 ${currentVram.toFixed(1)}GB（刚好够，但无余裕）`;
+    reason = t('fallback.just_enough', lang, params);
   } else {
-    reason = `推荐模型需 ${tightest.vramMin}GB，你只有 ${currentVram.toFixed(1)}GB（还差 ${gap.toFixed(1)}GB）`;
+    reason = t('fallback.short', lang, { ...params, gap: gap.toFixed(1) });
   }
 
   return {
     reason,
-    suggestion: `建议：(1) 关闭其他程序释放内存 (2) 用更小的量化（如 Q2_K） (3) 升级硬件 (4) 用云 API`,
+    suggestion: t('fallback.suggestion.body', lang),
     minRequiredVram: tightest.vramMin,
     apiAlternatives: ['OpenAI GPT-4o-mini', 'Anthropic Claude 3.5 Haiku', 'DeepSeek Chat'],
   };
@@ -120,12 +123,16 @@ function buildFallback(
  *   const rec = recommend(matches, hardware);
  *   console.log(rec.balanced[0].modelName);  // "Qwen3-8B"
  */
-export function recommend(allMatches: MatchResult[], hardware: HardwareProfile): RecommendedModels {
+export function recommend(
+  allMatches: MatchResult[],
+  hardware: HardwareProfile,
+  lang: Lang = DEFAULT_LANG,
+): RecommendedModels {
   const conservative = topN(filterByTierDynamic(allMatches, 'conservative'), TOP_N_PER_TIER);
   const balanced = topN(filterByTierDynamic(allMatches, 'balanced'), TOP_N_PER_TIER);
   const aggressive = topN(filterByTierDynamic(allMatches, 'aggressive'), TOP_N_PER_TIER);
 
-  const fallback = buildFallback(allMatches, hardware);
+  const fallback = buildFallback(allMatches, hardware, lang);
 
   return {
     conservative,
