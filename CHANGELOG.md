@@ -7,13 +7,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Planned (v0.4)
-- i18n: English output mode (--lang en)
-- CI: GitHub Actions auto-run 158 tests on push
-- More models: Qwen3-110B/720B, Llama-4
-- Download time estimator (按网速算"7B 下载要 X 分钟")
-- npm publish (首次发布)
+### Planned (v0.5 / v1.0)
+- npm publish 首次发布
 - V2EX 首发帖
+- README 完整化（截图 / GIF / vs whichllm 对比）
+- a100_80gb / h100_80gb hardware key + 真实 tps 估算
+- 删 Llama-3.1-70B（被 Llama-3.3-70B 替代）
+- GitHub Action CI（自动跑 187 测试）
+
+## [0.4.0] - 2026-06-07
+
+### Added
+- **i18n: zh/en bilingual CLI output (v0.4.1 + v0.4.2)**
+  - `src/i18n/strings.ts`: 80+ key 中英双语字典
+  - `t(key, lang, params)`: 翻译 + 变量替换
+  - `detectLang()`: 按 LANG 环境变量自动检测
+  - `[missing:key]` 显式错误提示
+  - DEFAULT_LANG='zh' 向后兼容
+- **`--lang <zh|en>` CLI flag (v0.4.2b)**
+  - `local-llm-doctor --lang en` → 英文
+  - `local-llm-doctor --lang zh` → 中文（默认）
+  - `-l` 短别名
+  - 不支持的语言 → warning + fallback
+  - printHelp 也接受 lang
+- **table.ts 全部 i18n 化 (v0.4.2a)**
+  - renderHardware / renderRecommendations / renderFull 加 lang 参数
+  - 局部变量 `t = new Table()` 改名 `cliTable`（避免遮蔽 i18n t()）
+  - 6 个 render 函数 + 30+ 字符串 i18n 化
+- **5 new flagship models (v0.4.3)**
+  - Qwen3-235B-A22B (MoE, 235B/22B active)
+  - Llama-3.3-70B (70B dense)
+  - DeepSeek-V3-0324 (MoE 671B/37B active)
+  - Gemma-3-27B (27B dense, 跨档 balanced+aggressive)
+  - Qwen2.5-72B (72B dense, Qwen3 没出 72B 的替代)
+  - 15 → 20 models
+
+### Design decisions (v0.4.1/2)
+- 集中字典（单文件 8.7KB）vs 分散：选集中（加新语言加 1 列）
+- `{name}` 变量占位（JavaScript / i18next 通用）
+- JSON 模式不切语言（脚本友好，键名稳定）
+- printHelp 也接受 lang（i18n 完整性）
+- DEFAULT_LANG='zh' 不变（不读 env.LANG）
+- tps_estimate 大模型全 0（诚实：不编造 70B+ 跑不动的数字）
+
+### Real-hardware tested
+- 5.87GB WSL2: 5 模型能跑
+- 3.87GB Windows 11: 2 模型能跑
+- 24GB RTX 4090: 3 档全有
+- `--lang en` 模式全部英文输出（表格 + 文案）
+
+### Stats
+- 187/187 tests passing
+- tsc 0 errors
+- 25 commits
 
 ## [0.3.0] - 2026-06-07
 
