@@ -151,6 +151,18 @@ const STRINGS: Dict = {
     zh: '(无推荐)',
     en: '(no recommendations)',
   },
+  'rec.tier.conservative': {
+    zh: '保守',
+    en: 'Conservative',
+  },
+  'rec.tier.balanced': {
+    zh: '平衡',
+    en: 'Balanced',
+  },
+  'rec.tier.aggressive': {
+    zh: '激进',
+    en: 'Aggressive',
+  },
   'rec.col.tier': {
     zh: '档位',
     en: 'Tier',
@@ -178,6 +190,52 @@ const STRINGS: Dict = {
   'rec.col.reason': {
     zh: '原因',
     en: 'Reason',
+  },
+
+  // ---- debug ----
+  'debug.header': {
+    zh: '调试：完整硬件信息',
+    en: 'Debug: full hardware info',
+  },
+  'section.hw': {
+    zh: '硬件信息',
+    en: 'Hardware',
+  },
+  'section.rec': {
+    zh: '推荐结果',
+    en: 'Recommendations',
+  },
+  'section.debug': {
+    zh: '调试：完整硬件信息',
+    en: 'Debug: full hardware info',
+  },
+  'gpu.label': {
+    zh: 'GPU',
+    en: 'GPU',
+  },
+  'gpu.multi.label': {
+    zh: 'GPU×N',
+    en: 'GPU×N',
+  },
+  'os.label': {
+    zh: 'OS',
+    en: 'OS',
+  },
+  'cpu.label': {
+    zh: 'CPU',
+    en: 'CPU',
+  },
+  'memory.label': {
+    zh: '内存',
+    en: 'Memory',
+  },
+  'disk.label': {
+    zh: '磁盘',
+    en: 'Disk',
+  },
+  'tps.unknown': {
+    zh: '-',
+    en: '-',
   },
 
   // ---- 适配度 badge ----

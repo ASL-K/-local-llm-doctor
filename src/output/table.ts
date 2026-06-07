@@ -1,19 +1,18 @@
 // =====================================================================
 // src/output/table.ts
 //
-// 用 cli-table3 渲染硬件检测结果和 3 档推荐。
-// 不含颜色（v0.2.2b 加 chalk 上色）。
+// v0.4.2a i18n 化：所有硬编码中文替换为 t() 调用。
+// 注意：cli-table3 的 `new Table()` 局部变量名改成 `cliTable`，
+//       避免和 i18n 的 `t()` 函数冲突。
 //
-// 边界处理：
-//   - matchResult 为空时显示 "(无)"
-//   - GPU 列表超过 1 个时只显示主 GPU
-//   - 长 reason 文本截断到 50 字符（不破坏表格布局）
+// 函数签名：所有 render* 函数加 `lang: Lang` 参数（默认 'zh'，向后兼容）。
 // =====================================================================
 
 import Table from 'cli-table3';
 import type { HardwareProfile } from '../types.js';
 import type { MatchResult, RecommendedModels } from '../models/types.js';
 import { formatFitLevel, colorizeTier, colorizeTitle, colorizeFallback } from './format.js';
+import { t, type Lang, DEFAULT_LANG } from '../i18n/strings.js';
 
 const REASON_MAX_WIDTH = 50;
 
@@ -47,17 +46,17 @@ function truncate(str: string, maxWidth: number): string {
 function isWideChar(ch: string): boolean {
   const code = ch.codePointAt(0) || 0;
   return (
-    (code >= 0x1100 && code <= 0x115f) || // Hangul Jamo
-    (code >= 0x2e80 && code <= 0x303e) || // CJK Radicals
-    (code >= 0x3041 && code <= 0x33ff) || // Hiragana/Katakana
-    (code >= 0x3400 && code <= 0x4dbf) || // CJK Unified Ideographs Extension A
-    (code >= 0x4e00 && code <= 0x9fff) || // CJK Unified Ideographs
-    (code >= 0xa000 && code <= 0xa4cf) || // Yi
-    (code >= 0xac00 && code <= 0xd7a3) || // Hangul Syllables
-    (code >= 0xf900 && code <= 0xfaff) || // CJK Compatibility Ideographs
-    (code >= 0xfe30 && code <= 0xfe4f) || // CJK Compatibility Forms
-    (code >= 0xff00 && code <= 0xff60) || // Fullwidth Forms
-    (code >= 0xffe0 && code <= 0xffe6)    // Fullwidth Signs
+    (code >= 0x1100 && code <= 0x115f) ||
+    (code >= 0x2e80 && code <= 0x303e) ||
+    (code >= 0x3041 && code <= 0x33ff) ||
+    (code >= 0x3400 && code <= 0x4dbf) ||
+    (code >= 0x4e00 && code <= 0x9fff) ||
+    (code >= 0xa000 && code <= 0xa4cf) ||
+    (code >= 0xac00 && code <= 0xd7a3) ||
+    (code >= 0xf900 && code <= 0xfaff) ||
+    (code >= 0xfe30 && code <= 0xfe4f) ||
+    (code >= 0xff00 && code <= 0xff60) ||
+    (code >= 0xffe0 && code <= 0xffe6)
   );
 }
 
@@ -72,9 +71,9 @@ function computeWidth(str: string): number {
 /**
  * 渲染硬件检测结果
  */
-export function renderHardware(hw: HardwareProfile): string {
-  const t = new Table({
-    head: ['项', '值'],
+export function renderHardware(hw: HardwareProfile, lang: Lang = DEFAULT_LANG): string {
+  const cliTable = new Table({
+    head: [t('hw.col.item', lang), t('hw.col.value', lang)],
     colWidths: [15, 60],
     wordWrap: true,
   });
@@ -84,90 +83,116 @@ export function renderHardware(hw: HardwareProfile): string {
   if (hw.os.wsl) {
     osLine += ` (WSL${hw.os.wslVersion || ''})`;
   }
-  t.push(['OS', osLine]);
+  cliTable.push([t('os.label', lang), osLine]);
 
   // CPU
-  t.push(['CPU', `${hw.cpu.brand} (${hw.cpu.cores}核 ${hw.cpu.threads}线程, ${hw.cpu.arch})`]);
+  cliTable.push([
+    t('cpu.label', lang),
+    t('hw.cpu', lang, { brand: hw.cpu.brand, cores: hw.cpu.cores, threads: hw.cpu.threads, arch: hw.cpu.arch }),
+  ]);
 
   // 内存
-  t.push(['内存', `总计 ${hw.memory.total.toFixed(1)} GB / 可用 ${hw.memory.available.toFixed(1)} GB`]);
+  cliTable.push([
+    t('memory.label', lang),
+    t('hw.memory', lang, { total: hw.memory.total.toFixed(1), available: hw.memory.available.toFixed(1) }),
+  ]);
 
   // 磁盘
-  t.push(['磁盘', `总计 ${hw.disk.total.toFixed(1)} GB / 可用 ${hw.disk.available.toFixed(1)} GB${hw.disk.type !== 'unknown' ? ` (${hw.disk.type})` : ''}`]);
+  const diskKey = hw.disk.type !== 'unknown' ? 'hw.disk' : 'hw.disk.untype';
+  const diskParams = { total: hw.disk.total.toFixed(1), available: hw.disk.available.toFixed(1) };
+  const diskValue = hw.disk.type !== 'unknown'
+    ? t(diskKey, lang, { ...diskParams, type: hw.disk.type })
+    : t(diskKey, lang, diskParams);
+  cliTable.push([t('disk.label', lang), diskValue]);
 
   // GPU
   if (hw.gpu.length === 0) {
-    t.push(['GPU', '无独立显卡（用 CPU/集成显卡）']);
+    cliTable.push([t('gpu.label', lang), t('hw.gpu.none', lang)]);
   } else {
     // 显示主 GPU
     const primary = hw.gpu.reduce((a, b) => (b.vram > a.vram ? b : a));
-    const gpuLine = `${primary.model} (${primary.vendor}, ${primary.vram} GB VRAM${primary.cudaSupported ? ', CUDA' : ''}${primary.metalSupported ? ', Metal' : ''})`;
-    t.push(['GPU', gpuLine]);
+    const gpuLine =
+      `${primary.model} (${primary.vendor}, ${primary.vram} GB VRAM` +
+      (primary.cudaSupported ? t('hw.gpu.cuda', lang) : '') +
+      (primary.metalSupported ? t('hw.gpu.metal', lang) : '') +
+      ')';
+    cliTable.push([t('gpu.label', lang), gpuLine]);
     if (hw.gpu.length > 1) {
-      t.push(['GPU×N', `共 ${hw.gpu.length} 张卡（仅显示主 GPU）`]);
+      cliTable.push([t('gpu.multi.label', lang), t('hw.gpu.multi', lang, { n: hw.gpu.length })]);
     }
   }
 
-  return t.toString();
+  return cliTable.toString();
 }
 
 /**
  * 渲染单个档位的推荐表
  */
-function renderTierTable(tierName: '保守' | '平衡' | '激进', matches: MatchResult[]): string {
-  const t = new Table({
-    head: ['', '模型', '量化', '适配度', 'TPS~', 'Q', '原因'],
-    colWidths: [10, 22, 8, 16, 6, 4, REASON_MAX_WIDTH],
+function renderTierTable(
+  tierKey: 'conservative' | 'balanced' | 'aggressive',
+  matches: MatchResult[],
+  lang: Lang = DEFAULT_LANG,
+): string {
+  const cliTable = new Table({
+    head: [
+      t('rec.col.tier', lang),
+      t('rec.col.model', lang),
+      t('rec.col.quant', lang),
+      t('rec.col.fit', lang),
+      t('rec.col.tps', lang),
+      t('rec.col.q', lang),
+      t('rec.col.reason', lang),
+    ],
+    colWidths: [12, 22, 8, 16, 6, 4, REASON_MAX_WIDTH],
     wordWrap: true,
   });
 
   if (matches.length === 0) {
-    t.push(['(无推荐)']);
-    return t.toString();
+    cliTable.push([t('rec.empty', lang)]);
+    return cliTable.toString();
   }
 
   for (let i = 0; i < matches.length; i++) {
     const m = matches[i]!;
-    // 第 1 列：1st 行显示"档位 + 中档名"，其余空
-    const label = i === 0 ? `${colorizeTier(mapTierName(tierName))} (${tierName})` : '';
-    t.push([
+    // 第 1 列：1st 行显示"档位英文"，其余空
+    const label = i === 0 ? colorizeTier(tierKey) : '';
+    cliTable.push([
       label,
       m.modelName,
       m.quantLevel || '-',
       formatFitLevel(m.fitLevel),
-      String(m.estimatedTps || 0),
+      m.estimatedTps ? String(m.estimatedTps) : t('tps.unknown', lang),
       String(m.qualityScore),
       truncate(m.reason, REASON_MAX_WIDTH),
     ]);
   }
 
-  return t.toString();
-}
-
-/** 内部：中档名 → 英文档位 */
-function mapTierName(name: '保守' | '平衡' | '激进'): 'conservative' | 'balanced' | 'aggressive' {
-  if (name === '保守') return 'conservative';
-  if (name === '平衡') return 'balanced';
-  return 'aggressive';
+  return cliTable.toString();
 }
 
 /**
- * 渲染 3 档推荐（conservative / balanced / aggressive）
+ * 渲染 3 档推荐
  */
-export function renderRecommendations(rec: RecommendedModels): string {
+export function renderRecommendations(rec: RecommendedModels, lang: Lang = DEFAULT_LANG): string {
   const sections: string[] = [];
 
-  sections.push('┌─ ' + colorizeTier('conservative') + ' 档（保守 / 开箱即用） ──────────────────────────────────┐');
-  sections.push(renderTierTable('保守', rec.conservative));
+  sections.push(
+    '┌─ ' + colorizeTier('conservative') + ' ' + t('tier.conservative', lang) + ' (' + t('tier.conservative.desc', lang) + ') ' + '─'.repeat(Math.max(0, 64 - t('tier.conservative', lang).length - t('tier.conservative.desc', lang).length)) + '┐'
+  );
+  sections.push(renderTierTable('conservative', rec.conservative, lang));
   sections.push('');
-  sections.push('├─ ' + colorizeTier('balanced') + ' 档（平衡 / 默认推荐） ──────────────────────────────────┤');
-  sections.push(renderTierTable('平衡', rec.balanced));
+  sections.push(
+    '├─ ' + colorizeTier('balanced') + ' ' + t('tier.balanced', lang) + ' (' + t('tier.balanced.desc', lang) + ') ' + '─'.repeat(Math.max(0, 64 - t('tier.balanced', lang).length - t('tier.balanced.desc', lang).length)) + '┤'
+  );
+  sections.push(renderTierTable('balanced', rec.balanced, lang));
   sections.push('');
-  sections.push('├─ ' + colorizeTier('aggressive') + ' 档（激进 / 高配挑战） ──────────────────────────────────┤');
-  sections.push(renderTierTable('激进', rec.aggressive));
+  sections.push(
+    '├─ ' + colorizeTier('aggressive') + ' ' + t('tier.aggressive', lang) + ' (' + t('tier.aggressive.desc', lang) + ') ' + '─'.repeat(Math.max(0, 64 - t('tier.aggressive', lang).length - t('tier.aggressive.desc', lang).length)) + '┤'
+  );
+  sections.push(renderTierTable('aggressive', rec.aggressive, lang));
   sections.push('');
-  sections.push('└─ ' + colorizeFallback() + ' ─────────────────────────────────────────────────────┘');
-  sections.push(renderFallback(rec.fallback));
+  sections.push('└─ ' + colorizeFallback() + ' ' + '─'.repeat(60) + '┘');
+  sections.push(renderFallback(rec.fallback, lang));
 
   return sections.join('\n');
 }
@@ -175,36 +200,41 @@ export function renderRecommendations(rec: RecommendedModels): string {
 /**
  * 渲染兜底建议
  */
-function renderFallback(fb: RecommendedModels['fallback']): string {
-  const t = new Table({
-    head: ['项', '值'],
+function renderFallback(fb: RecommendedModels['fallback'], lang: Lang = DEFAULT_LANG): string {
+  const cliTable = new Table({
+    head: [t('fallback.col.item', lang), t('fallback.col.value', lang)],
     colWidths: [15, 60],
     wordWrap: true,
   });
 
-  t.push(['原因', fb.reason]);
-  t.push(['建议', fb.suggestion]);
-  t.push(['最少需要', fb.minRequiredVram === null ? '无可行方案' : `${fb.minRequiredVram} GB`]);
-  t.push(['API 替代', fb.apiAlternatives.join(' / ')]);
+  cliTable.push([t('fallback.col.reason', lang), fb.reason]);
+  cliTable.push([t('fallback.col.suggestion', lang), fb.suggestion]);
+  cliTable.push([
+    t('fallback.col.min', lang),
+    fb.minRequiredVram === null
+      ? t('fallback.min.unavailable', lang)
+      : t('fallback.min.value', lang, { n: fb.minRequiredVram }),
+  ]);
+  cliTable.push([t('fallback.col.api', lang), fb.apiAlternatives.join(' / ')]);
 
-  return t.toString();
+  return cliTable.toString();
 }
 
 /**
  * 渲染完整输出（硬件 + 3 档推荐）
  */
-export function renderFull(hw: HardwareProfile, rec: RecommendedModels): string {
+export function renderFull(hw: HardwareProfile, rec: RecommendedModels, lang: Lang = DEFAULT_LANG): string {
   const sections: string[] = [];
 
   sections.push('╔══════════════════════════════════════════════════════════════╗');
-  sections.push('║  ' + colorizeTitle('local-llm-doctor v0.2 — 我电脑能跑哪个 LLM？') + '     ║');
+  sections.push('║  ' + colorizeTitle(t('appName', lang) + ' v0.4 — ' + t('title', lang)) + '  ║');
   sections.push('╚══════════════════════════════════════════════════════════════╝');
   sections.push('');
-  sections.push('── 硬件信息 ─────────────────────────────────────────────────────────');
-  sections.push(renderHardware(hw));
+  sections.push('── ' + t('section.hw', lang) + ' ' + '─'.repeat(60));
+  sections.push(renderHardware(hw, lang));
   sections.push('');
-  sections.push('── 推荐结果 ─────────────────────────────────────────────────────────');
-  sections.push(renderRecommendations(rec));
+  sections.push('── ' + t('section.rec', lang) + ' ' + '─'.repeat(60));
+  sections.push(renderRecommendations(rec, lang));
 
   return sections.join('\n');
 }
