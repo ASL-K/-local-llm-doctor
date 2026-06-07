@@ -16,7 +16,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc && npm run copy-assets && chmod +x bin/local-llm-doctor.js",
+    "build": "node node_modules/typescript/bin/tsc && npm run copy-assets",
     "copy-assets": "node -e \"const fs=require('fs');const path=require('path');const src='src/models/table.json';const dest='dist/models/table.json';fs.mkdirSync(path.dirname(dest),{recursive:true});fs.copyFileSync(src,dest);console.log('Copied '+src+' to '+dest);\"",
     "dev": "tsc --watch",
     "start": "node bin/local-llm-doctor.js",
@@ -29,13 +29,13 @@
     "prepublishOnly": "npm run build && npm test && npm run verify:models"
   },
   "dependencies": {
-    "systeminformation": "^5.23.0",
-    "commander": "^12.0.0",
-    "chalk": "^5.3.0",
-    "cli-table3": "^0.6.5",
     "boxen": "^7.1.0",
+    "chalk": "^5.6.2",
+    "cli-table3": "^0.6.5",
+    "commander": "^12.0.0",
     "ora": "^8.0.0",
-    "string-width": "^7.0.0"
+    "string-width": "^7.0.0",
+    "systeminformation": "^5.23.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
