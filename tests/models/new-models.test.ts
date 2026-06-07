@@ -12,9 +12,10 @@ import { recommend } from '../../src/recommend/recommend.js';
 import type { HardwareProfile } from '../../src/types.js';
 
 describe('v0.4.3 new models in table', () => {
-  it('loads 5 new models (total 20)', async () => {
+  it('loads 5 new models (total 19)', async () => {
     const table = await getTable();
-    expect(table.models.length).toBe(20);
+    // v0.5.1: 删 llama-3.1-70b → 20 → 19
+    expect(table.models.length).toBe(19);
 
     const ids = table.models.map(m => m.id);
     expect(ids).toContain('qwen3-235b-a22b');
@@ -22,6 +23,8 @@ describe('v0.4.3 new models in table', () => {
     expect(ids).toContain('deepseek-v3-0324');
     expect(ids).toContain('gemma-3-27b');
     expect(ids).toContain('qwen2.5-72b');
+    // v0.5.1: 删 llama-3.1-70b
+    expect(ids).not.toContain('llama-3.1-70b');
   });
 
   it('all new models have valid fields', async () => {

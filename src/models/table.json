@@ -220,32 +220,6 @@
       "release_date": "2024-12"
     },
     {
-      "id": "llama-3.1-70b",
-      "name": "Llama-3.1-70B",
-      "family": "Llama",
-      "params_b": 70,
-      "active_b": 70,
-      "type": "dense",
-      "context_k": 128,
-      "quant_levels": {
-        "Q2_K":   { "vram_min": 28, "ram_min": 28, "quality_score": 76 },
-        "Q3_K_M": { "vram_min": 36, "ram_min": 36, "quality_score": 80 },
-        "Q4_K_M": { "vram_min": 44, "ram_min": 44, "quality_score": 83 }
-      },
-      "tps_estimate": {
-        "rtx_4090_24gb": 8,
-        "rtx_3090_24gb": 7
-      },
-      "best_for": ["复杂推理", "长上下文"],
-      "license": "Llama-3.1",
-      "huggingface_id": "meta-llama/Llama-3.1-70B-Instruct-GGUF",
-      "tier_conservative": false,
-      "tier_balanced": false,
-      "tier_aggressive": true,
-      "note": "需要双卡 RTX 4090 或量化后单卡勉强",
-      "release_date": "2024-07"
-    },
-    {
       "id": "deepseek-v3",
       "name": "DeepSeek-V3",
       "family": "DeepSeek",

@@ -57,17 +57,18 @@ describe('tier_dynamic algorithm (v0.3.2)', () => {
     expect(result!.tierDynamic).toBe('aggressive');
   });
 
-  it('Llama-3.1-70B Q2_K (vram_min 28GB) → aggressive on 48GB GPU', async () => {
-    // 24GB 显存跑不动 70B（28GB），用 48GB（理论值，A100 80GB 的子集）
+  it('Llama-3.3-70B Q2_K (vram_min 28GB) → aggressive on 40GB GPU', async () => {
+    // v0.5.1: 删 llama-3.1-70b → 改用 llama-3.3-70b
+    // 24GB 显存跑不动 70B（28GB），用 40GB（A100-40GB）
     const a100User: HardwareProfile = {
       os: { platform: 'linux', distro: 'Ubuntu', wsl: false, wslVersion: null },
       cpu: { brand: 'Xeon', cores: 32, threads: 64, arch: 'x86_64', features: [] },
       memory: { total: 128, available: 120, type: 'DDR5' },
-      disk: { total: 5000, available: 4000, type: 'NVMe' },
+      disk: { total: 5000, available: 4000, type: 'SSD' },
       gpu: [{ vendor: 'nvidia', model: 'A100-40GB', vram: 40, metalSupported: false, cudaSupported: true }],
     };
     const table = await getTable();
-    const llama70 = table.models.find(m => m.id === 'llama-3.1-70b')!;
+    const llama70 = table.models.find(m => m.id === 'llama-3.3-70b')!;
     const result = matchModel(llama70, a100User);
     expect(result).not.toBeNull();
     expect(result!.tierDynamic).toBe('aggressive');
