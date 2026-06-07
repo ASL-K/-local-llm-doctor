@@ -25,6 +25,7 @@ import { detectCpu } from './cpu.js';
 import { detectMemory } from './memory.js';
 import { detectDisk } from './disk.js';
 import { detectOs } from './os.js';
+import { detectGpu } from './gpu.js';
 
 /**
  * 内部：用超时包裹检测器
@@ -91,27 +92,36 @@ function osFallback(): OsInfo {
 }
 
 /**
+ * 内部：GPU 失败时的兜底（空数组）
+ */
+function gpuFallback(): GpuInfo[] {
+  return [];
+}
+
+/**
  * 检测完整硬件配置
  *
- * @returns {Promise<HardwareProfile>} 4 个检测器汇总（不含 GPU，GPU 在 v0.2 单独）
+ * @returns {Promise<HardwareProfile>} 5 个检测器汇总（OS/CPU/Memory/Disk/GPU）
  *
  * @example
  *   const hw = await detectHardware();
  *   console.log(hw.cpu.brand);     // "Intel Core i7-13700H"
  *   console.log(hw.memory.available); // 28.3
  *   console.log(hw.os.wsl);        // true
+ *   console.log(hw.gpu[0]?.vram);  // 24
  */
 export async function detectHardware(): Promise<HardwareProfile> {
-  logger.debug('Starting hardware detection (4 detectors in parallel)...');
+  logger.debug('Starting hardware detection (5 detectors in parallel)...');
   const start = Date.now();
 
-  // 并行跑 4 个检测器
+  // 并行跑 5 个检测器
   // 每个独立 try/catch，失败用 fallback
-  const [os, cpu, memory, disk] = await Promise.all([
+  const [os, cpu, memory, disk, gpu] = await Promise.all([
     safeDetect('os', detectOs, osFallback),
     safeDetect('cpu', detectCpu, cpuFallback),
     safeDetect('memory', detectMemory, memoryFallback),
     safeDetect('disk', detectDisk, diskFallback),
+    safeDetect('gpu', detectGpu, gpuFallback),
   ]);
 
   const elapsed = Date.now() - start;
@@ -122,7 +132,7 @@ export async function detectHardware(): Promise<HardwareProfile> {
     cpu,
     memory,
     disk,
-    gpu: [], // GPU 在 v0.2 单独检测
+    gpu,
   };
 
   return profile;

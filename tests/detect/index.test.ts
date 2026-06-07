@@ -19,12 +19,16 @@ vi.mock('../../src/detect/disk.js', () => ({
 vi.mock('../../src/detect/os.js', () => ({
   detectOs: vi.fn(),
 }));
+vi.mock('../../src/detect/gpu.js', () => ({
+  detectGpu: vi.fn(),
+}));
 
 import { detectHardware, selectPrimaryGpu } from '../../src/detect/index.js';
 import { detectCpu } from '../../src/detect/cpu.js';
 import { detectMemory } from '../../src/detect/memory.js';
 import { detectDisk } from '../../src/detect/disk.js';
 import { detectOs } from '../../src/detect/os.js';
+import { detectGpu } from '../../src/detect/gpu.js';
 
 describe('detectHardware', () => {
   beforeEach(() => {
@@ -53,6 +57,7 @@ describe('detectHardware', () => {
       wsl: false,
       wslVersion: null,
     });
+    (detectGpu as ReturnType<typeof vi.fn>).mockResolvedValue([]);
   });
 
   it('returns complete HardwareProfile when all detectors succeed', async () => {
@@ -188,13 +193,17 @@ describe('detectHardware', () => {
       await delay(100);
       return { platform: 'linux', distro: 'X', wsl: false, wslVersion: null };
     });
+    (detectGpu as ReturnType<typeof vi.fn>).mockImplementation(async () => {
+      await delay(100);
+      return [];
+    });
 
     const start = Date.now();
     await detectHardware();
     const elapsed = Date.now() - start;
 
-    // 并行：4 个 100ms → 总 ~100ms（容许误差 50ms）
-    // 串行：4 个 100ms → 总 400ms
+    // 并行：5 个 100ms → 总 ~100ms（容许误差 50ms）
+    // 串行：5 个 100ms → 总 500ms
     expect(elapsed).toBeLessThan(250);
   });
 });
