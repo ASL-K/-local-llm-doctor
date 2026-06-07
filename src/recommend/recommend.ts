@@ -84,10 +84,23 @@ function buildFallback(
   const currentVram = hardware.gpu.length > 0
     ? Math.max(...hardware.gpu.map(g => g.vram))
     : hardware.memory.available;
-  const gap = tightest.vramMin - currentVram;
+  const gap = tightest.vramMin - currentVram; // 正数=还差，负数=有盈余
+
+  // 3 分支文案：
+  //   - 负数（gap < 0）：实际有盈余，旧文案"差 -0.9GB"是错的
+  //   - 零（gap === 0）：刚好够但无余裕
+  //   - 正数（gap > 0）：还差这么多
+  let reason: string;
+  if (gap < 0) {
+    reason = `推荐模型需 ${tightest.vramMin}GB，你有 ${currentVram.toFixed(1)}GB（盈余 ${(-gap).toFixed(1)}GB）`;
+  } else if (gap === 0) {
+    reason = `推荐模型需 ${tightest.vramMin}GB，你有 ${currentVram.toFixed(1)}GB（刚好够，但无余裕）`;
+  } else {
+    reason = `推荐模型需 ${tightest.vramMin}GB，你只有 ${currentVram.toFixed(1)}GB（还差 ${gap.toFixed(1)}GB）`;
+  }
 
   return {
-    reason: `推荐模型需要至少 ${tightest.vramMin}GB 显存/内存，你只有 ${currentVram.toFixed(1)}GB（差 ${gap.toFixed(1)}GB）`,
+    reason,
     suggestion: `建议：(1) 关闭其他程序释放内存 (2) 用更小的量化（如 Q2_K） (3) 升级硬件 (4) 用云 API`,
     minRequiredVram: tightest.vramMin,
     apiAlternatives: ['OpenAI GPT-4o-mini', 'Anthropic Claude 3.5 Haiku', 'DeepSeek Chat'],
