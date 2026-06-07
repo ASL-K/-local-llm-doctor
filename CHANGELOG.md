@@ -7,11 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Planned (v0.3)
-- Fix fallback reason text (3 branches: short / just enough / surplus)
-- De-dup 3-tier recommendations (tier_dynamic calc based on hardware)
-- Hide disk.type when "unknown" (Windows common)
-- Disk filesystem detection (NTFS/ext4/APFS)
+### Planned (v0.4)
+- i18n: English output mode (--lang en)
+- CI: GitHub Actions auto-run 158 tests on push
+- More models: Qwen3-110B/720B, Llama-4
+- Download time estimator (按网速算"7B 下载要 X 分钟")
+- npm publish (首次发布)
+- V2EX 首发帖
+
+## [0.3.0] - 2026-06-07
+
+### Fixed
+- **fallback reason: 3 branches (v0.3.1)**
+  - v0.2 bug: 3.87GB Windows 用户看到"差 -0.9GB"（负数表达错）
+  - 3 分支文案：
+    - gap < 0:  "盈余 XGB"（有盈余）
+    - gap === 0: "刚好够，但无余裕"（无浮点误差，无 OOM 缓冲）
+    - gap > 0:  "还差 XGB"（缺）
+  - 7 个新测试覆盖 1GB / 3GB / 3.87GB / 4GB / 5.64GB 场景
+- **tier_dynamic algo (v0.3.2)**
+  - v0.2 bug: 3 档完全一样（5.64GB 用户 3 档都是同 2 个模型）
+  - 原因: v0.1/v0.2 用 model.tierFlags（model 自己声明档位），
+    table.json 里所有 model 3 个 flag 都设成 true → 等于没区分
+  - 修法: 用 vramMin 动态决定档位
+    - < 6GB   → conservative（极小模型）
+    - 6-14GB  → balanced（中等模型）
+    - >= 14GB → aggressive（大模型）
+  - 阈值依据: 5.64GB / 3.87GB 用户的最小 vramMin 是 4GB（Q4_K_M），
+    阈值 = 4 时 conservative 永远空；阈值 = 6 时主流用户有内容
+  - 5 个新测试覆盖 3 档 + 边界 + 向后兼容
+  - 向后兼容: `MatchResult.tierFlags` 字段保留，recommend 改用 `tierDynamic`
+- **disk type display (v0.3.3)**
+  - v0.2 line 96 已隐性修好 (`!== 'unknown' ? (...) : ''`)
+  - v0.3.3 加 4 个测试覆盖这个 case
+  - Windows 上 systeminformation 不报 SSD/HDD，不显示 (unknown)
+
+### Real-hardware tested
+- 3.87GB Windows 11: conservative 3 + balanced 0 + aggressive 0 (改善)
+- 5.64GB WSL2 Ubuntu: conservative 3 + balanced 0 + aggressive 0 (改善)
+- 158/158 tests passing, tsc 0 errors
 
 ## [0.2.0] - 2026-06-07
 
