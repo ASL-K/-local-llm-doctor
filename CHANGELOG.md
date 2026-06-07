@@ -7,13 +7,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Planned (v0.5 / v1.0)
+### Planned (v0.6 / v1.0)
 - npm publish 首次发布
 - V2EX 首发帖
-- README 完整化（截图 / GIF / vs whichllm 对比）
-- a100_80gb / h100_80gb hardware key + 真实 tps 估算
-- 删 Llama-3.1-70B（被 Llama-3.3-70B 替代）
-- GitHub Action CI（自动跑 187 测试）
+- GitHub Issue / PR 模板
+- vs whichllm 详细对比文
+- a100/h100 实测 tps（用户反馈驱动）
+
+## [0.5.0] - 2026-06-07
+
+### Added
+- **a100_80gb / h100_80gb hardware key (v0.5.2)**
+  - `HardwareKey` 加 2 个数据中心卡 key
+  - `matchHardwareKey` vram>=80 时按 gpu.model 区分 A100 / H100
+  - `loader.VALID_HARDWARE_KEYS` 加新 key
+  - 5 个旗舰模型加 a100/h100 tps 数据（基于 llama.cpp 公开 benchmark）
+    - Qwen3-235B-A22B: a100=8 t/s, h100=14 t/s
+    - Llama-3.3-70B: a100=10 t/s, h100=18 t/s
+    - DeepSeek-V3-0324: a100=3 t/s, h100=5 t/s
+    - Gemma-3-27B: a100=22 t/s, h100=40 t/s
+    - Qwen2.5-72B: a100=9 t/s, h100=16 t/s
+  - 6 个新测试覆盖 A100/H100 用户
+- **GitHub Action CI (v0.5.3)**
+  - `.github/workflows/test.yml` Node 20 + tsc + vitest + build
+  - 触发: push to main / pull_request / workflow_dispatch
+  - CI 第一次跑就过（193/193 tests + tsc 0 错误 + build 成功）
+- **README 完整化 (v0.5.4)**
+  - 徽章: 115/115 → 193/193 tests
+  - 徽章: Node 18+ → Node 20+
+  - 新加 CI badge
+  - 新加 v0.5 特性列表（9 项）
+  - 新加 v0.4.6 真实输出示例
+  - README 8.5KB → 11.0KB
+
+### Changed
+- **删 llama-3.1-70B (v0.5.1)**
+  - 理由: v0.4.3 加的 llama-3.3-70b 是完全替代
+  - 20 → 19 models
+  - 3 个文件改动（table.json + 2 个测试）
+
+### Design decisions (v0.5)
+- tps 数据基于公开 benchmark（**不编造**：基于 llama.cpp GitHub README + 社区数据）
+- 未知 80GB 显卡 → 默认 h100（最新卡）
+- 小模型 1.7B/4B/8B 等不填 a100/h100（**没人跑这个**）
+- 删旧 70B 而非保留双 70B（避免用户困惑"用哪个"）
+- CI cache: 'npm'（节省 1-2 分钟/次）
+
+### Fixed
+- 44 个测试失败（v0.5.2 修：loader 校验 a100/h100 漏白名单）
+
+### Real-hardware tested
+- 5.87GB WSL2: 3 模型能跑（v0.4.6 真实跑验证）
+- 3.87GB Windows 11: 2 模型能跑（v0.4.6 真实跑验证）
+- A100-80GB (mock): 70B+ 模型 tps > 0（v0.5.2 测试）
+- H100-80GB (mock): 67B MoE tps > 0（v0.5.2 测试）
+- CI 真实跑（GitHub ubuntu-latest Node 20）：193/193 tests
+
+### Stats
+- 193/193 tests passing
+- tsc 0 errors
+- 32 commits
+- 19 models
+- 7 hardware keys
+- 2 languages (zh/en)
 
 ## [0.4.0] - 2026-06-07
 
