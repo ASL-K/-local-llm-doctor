@@ -17,6 +17,7 @@
 //   - 多 CPU 插槽（服务器）
 // =====================================================================
 
+import { platform } from 'node:os';
 import si from 'systeminformation';
 import type { CpuInfo } from '../types.js';
 import { DetectionError } from '../utils/errors.js';
@@ -68,14 +69,17 @@ function extractFeatures(allFlags: string[]): string[] {
 export async function detectCpu(): Promise<CpuInfo> {
   logger.debug('Detecting CPU...');
   try {
-    const [cpu, flags, system] = await withTimeout(
-      Promise.all([si.cpu(), si.cpuFlags(), si.system()]),
+    const [cpu, flagsStr, osInfo] = await withTimeout(
+      Promise.all([si.cpu(), si.cpuFlags(), si.osInfo()]),
       DETECTION_TIMEOUT_MS,
       'CPU detection',
     );
 
-    // systeminformation 在 Apple Silicon 上可能返回 arch='ARM64' 大写
-    const archLower = system.arch.toLowerCase();
+    // systeminformation 5.x 的 cpuFlags() 返回 string（空格分隔），不是 string[]
+    const flagsArray = typeof flagsStr === 'string' ? flagsStr.split(/\s+/) : flagsStr;
+
+    // systeminformation 的 osInfo.arch 在 Apple Silicon 上可能返回 'ARM64' 大写
+    const archLower = (osInfo.arch || '').toLowerCase();
     const arch: CpuInfo['arch'] =
       archLower === 'arm64' || archLower === 'aarch64'
         ? 'arm64'
@@ -85,16 +89,17 @@ export async function detectCpu(): Promise<CpuInfo> {
             ? 'riscv64'
             : 'x86_64'; // 默认兜底
 
-    const features = extractFeatures(flags);
+    const features = extractFeatures(flagsArray);
 
     // 计算 threads：
-    //   - systeminformation 的 cpu.cores 是物理核数（或带超线程的逻辑核数）
-    //   - physicalCores 是物理核数（不带超线程）
-    //   - 如果 hyperthreading=true → threads = physicalCores * 2
-    //   - 如果 hyperthreading=false（Apple Silicon）→ threads = physicalCores
-    //   - 如果 physicalCores 缺失 → fallback 到 cores
+    //   - physicalCores 是物理核数
+    //   - efficiencyCores / performanceCores 存在 → Apple Silicon / Intel 混合架构
+    //   - 判断超线程：看 efficiencyCores 是否存在（Apple Silicon 有 P+E 核，等同"无超线程"）
+    //     x86 Intel/AMD 没有 efficiencyCores，但实际有 HT → threads = physicalCores * 2
+    //   - 简化策略：默认假设 x86_64 有超线程（除非显式知道是 Apple）
     const physicalCores = cpu.physicalCores || cpu.cores || 1;
-    const hasHyperthreading = cpu.hyperthreading === true;
+    const isAppleSilicon = arch === 'arm64' && platform() === 'darwin';
+    const hasHyperthreading = !isAppleSilicon; // 简化：非 Apple Silicon 默认有超线程
     const threads = hasHyperthreading ? physicalCores * 2 : physicalCores;
 
     const result: CpuInfo = {

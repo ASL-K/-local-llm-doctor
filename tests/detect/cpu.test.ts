@@ -12,7 +12,7 @@ vi.mock('systeminformation', () => ({
   default: {
     cpu: vi.fn(),
     cpuFlags: vi.fn(),
-    system: vi.fn(),
+    osInfo: vi.fn(),
   },
 }));
 
@@ -30,13 +30,11 @@ describe('detectCpu', () => {
       brand: 'Intel Core i7-13700H',
       cores: 14,
       physicalCores: 14,
-      hyperthreading: true,
     });
-    (si.cpuFlags as ReturnType<typeof vi.fn>).mockResolvedValue([
-      'fpu', 'vme', 'de', 'pse', 'tsc', 'msr', 'pae', 'mce',
-      'avx', 'avx2', 'avx512f', 'sse4_1', 'sse4_2', 'fma',
-    ]);
-    (si.system as ReturnType<typeof vi.fn>).mockResolvedValue({
+    (si.cpuFlags as ReturnType<typeof vi.fn>).mockResolvedValue(
+      'fpu vme de pse tsc msr pae mce avx avx2 avx512f sse4_1 sse4_2 fma'
+    );
+    (si.osInfo as ReturnType<typeof vi.fn>).mockResolvedValue({
       arch: 'x64',
     });
 
@@ -52,17 +50,16 @@ describe('detectCpu', () => {
   });
 
   it('detects Apple Silicon (M3 Pro)', async () => {
+    // 模拟 macOS
+    Object.defineProperty(process, 'platform', { value: 'darwin', configurable: true });
     (si.cpu as ReturnType<typeof vi.fn>).mockResolvedValue({
       brand: 'Apple M3 Pro',
       cores: 12,
       physicalCores: 12, // Apple Silicon 通常不开超线程
-      hyperthreading: false,
     });
-    (si.cpuFlags as ReturnType<typeof vi.fn>).mockResolvedValue([
-      'neon', 'fp16', 'asimd', 'aes', 'sha1', 'sha2',
-    ]);
-    (si.system as ReturnType<typeof vi.fn>).mockResolvedValue({
-      arch: 'ARM64',
+    (si.cpuFlags as ReturnType<typeof vi.fn>).mockResolvedValue('neon fp16 asimd aes sha1 sha2');
+    (si.osInfo as ReturnType<typeof vi.fn>).mockResolvedValue({
+      arch: 'arm64',
     });
 
     const cpu = await detectCpu();
@@ -73,6 +70,9 @@ describe('detectCpu', () => {
     expect(cpu.arch).toBe('arm64');
     expect(cpu.features).toContain('neon');
     expect(cpu.features).toContain('fp16');
+
+    // 恢复
+    Object.defineProperty(process, 'platform', { value: 'linux', configurable: true });
   });
 
   it('handles missing brand gracefully', async () => {
@@ -80,10 +80,9 @@ describe('detectCpu', () => {
       brand: '',
       cores: 4,
       physicalCores: 4,
-      hyperthreading: false,
     });
-    (si.cpuFlags as ReturnType<typeof vi.fn>).mockResolvedValue([]);
-    (si.system as ReturnType<typeof vi.fn>).mockResolvedValue({
+    (si.cpuFlags as ReturnType<typeof vi.fn>).mockResolvedValue('');
+    (si.osInfo as ReturnType<typeof vi.fn>).mockResolvedValue({
       arch: 'x64',
     });
 
@@ -98,10 +97,9 @@ describe('detectCpu', () => {
       brand: 'AMD Ryzen 5 5600',
       cores: 6,
       // 故意不设 physicalCores
-      hyperthreading: true,
     });
-    (si.cpuFlags as ReturnType<typeof vi.fn>).mockResolvedValue(['avx2']);
-    (si.system as ReturnType<typeof vi.fn>).mockResolvedValue({
+    (si.cpuFlags as ReturnType<typeof vi.fn>).mockResolvedValue('avx2');
+    (si.osInfo as ReturnType<typeof vi.fn>).mockResolvedValue({
       arch: 'x64',
     });
 
@@ -116,10 +114,9 @@ describe('detectCpu', () => {
       brand: 'AWS Graviton3',
       cores: 64,
       physicalCores: 64,
-      hyperthreading: false,
     });
-    (si.cpuFlags as ReturnType<typeof vi.fn>).mockResolvedValue(['neon', 'asimd']);
-    (si.system as ReturnType<typeof vi.fn>).mockResolvedValue({
+    (si.cpuFlags as ReturnType<typeof vi.fn>).mockResolvedValue('neon asimd');
+    (si.osInfo as ReturnType<typeof vi.fn>).mockResolvedValue({
       arch: 'aarch64',
     });
 
@@ -133,14 +130,11 @@ describe('detectCpu', () => {
       brand: 'Test CPU',
       cores: 4,
       physicalCores: 4,
-      hyperthreading: false,
     });
-    (si.cpuFlags as ReturnType<typeof vi.fn>).mockResolvedValue([
-      'fpu', 'vme', 'de', 'pse', 'tsc',  // 噪声 flags
-      'avx', 'avx2', 'amx_tile',        // 真实相关的
-      'some_unknown_flag',              // 未知的
-    ]);
-    (si.system as ReturnType<typeof vi.fn>).mockResolvedValue({
+    (si.cpuFlags as ReturnType<typeof vi.fn>).mockResolvedValue(
+      'fpu vme de pse tsc avx avx2 amx_tile some_unknown_flag'
+    );
+    (si.osInfo as ReturnType<typeof vi.fn>).mockResolvedValue({
       arch: 'x64',
     });
 
@@ -158,8 +152,8 @@ describe('detectCpu', () => {
 
   it('throws DetectionError when systeminformation fails', async () => {
     (si.cpu as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('permission denied'));
-    (si.cpuFlags as ReturnType<typeof vi.fn>).mockResolvedValue([]);
-    (si.system as ReturnType<typeof vi.fn>).mockResolvedValue({ arch: 'x64' });
+    (si.cpuFlags as ReturnType<typeof vi.fn>).mockResolvedValue('');
+    (si.osInfo as ReturnType<typeof vi.fn>).mockResolvedValue({ arch: 'x64' });
 
     await expect(detectCpu()).rejects.toThrow(DetectionError);
   });
@@ -169,8 +163,8 @@ describe('detectCpu', () => {
     (si.cpu as ReturnType<typeof vi.fn>).mockImplementation(
       () => new Promise(() => {})
     );
-    (si.cpuFlags as ReturnType<typeof vi.fn>).mockResolvedValue([]);
-    (si.system as ReturnType<typeof vi.fn>).mockResolvedValue({ arch: 'x64' });
+    (si.cpuFlags as ReturnType<typeof vi.fn>).mockResolvedValue('');
+    (si.osInfo as ReturnType<typeof vi.fn>).mockResolvedValue({ arch: 'x64' });
 
     await expect(detectCpu()).rejects.toThrow(DetectionError);
   }, 10000); // 给测试 10s 留超时时间
