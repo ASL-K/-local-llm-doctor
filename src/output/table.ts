@@ -15,7 +15,7 @@
 import Table from 'cli-table3';
 import type { HardwareProfile } from '../types.js';
 import type { MatchResult, RecommendedModels } from '../models/types.js';
-import { colorizeTier, colorizeTitle, colorizeFallback, colorizeSuccess } from './format.js';
+import { colorizeTitle, colorizeFallback, colorizeSuccess } from './format.js';
 import { t, type Lang, DEFAULT_LANG } from '../i18n/strings.js';
 
 const REASON_MAX_WIDTH = 50;
@@ -219,28 +219,26 @@ export function renderRecommendations(rec: RecommendedModels, lang: Lang = DEFAU
     balanced: EMOJI.tier2,
     aggressive: EMOJI.tier3,
   };
-  const tierNames: Record<string, string> = {
-    conservative: t('tier.conservative', lang),
-    balanced: t('tier.balanced', lang),
-    aggressive: t('tier.aggressive', lang),
-  };
+  // v0.4.6 删了 tierNames（用 t('tier.' + tier, lang) 动态取）
   const tierDescs: Record<string, string> = {
     conservative: t('tier.conservative.desc', lang),
     balanced: t('tier.balanced.desc', lang),
     aggressive: t('tier.aggressive.desc', lang),
   };
 
-  // 3 个 tier（v0.4.5：简洁标题 [保守档] 开箱即用）
+  // 3 个 tier（v0.4.6：中文档名 + emoji + 描述）
   const tiers: Array<'conservative' | 'balanced' | 'aggressive'> = ['conservative', 'balanced', 'aggressive'];
   tiers.forEach((tier, idx) => {
     const sep = idx === 0 ? '┌─' : idx === tiers.length - 1 ? '└─' : '├─';
     const end = idx === 0 ? '─' : idx === tiers.length - 1 ? '┘' : '┤';
+    // v0.4.6: 用 i18n 翻译的档名（lang=zh → 保守档，lang=en → Conservative）
+    const name = t('tier.' + tier, lang);
     sections.push(
       sep + ' ' +
       tierEmojis[tier] + ' ' +
-      colorizeTier(tier) + ' │ ' +
+      name + ' │ ' +
       (tierDescs[tier] ?? '') +
-      ' ' + '─'.repeat(Math.max(0, 56 - (tierDescs[tier]?.length ?? 0) - (tierNames[tier]?.length ?? 0))) +
+      ' ' + '─'.repeat(Math.max(0, 56 - (tierDescs[tier]?.length ?? 0) - name.length)) +
       end
     );
     sections.push(renderTierTable(tier, rec[tier], lang));
