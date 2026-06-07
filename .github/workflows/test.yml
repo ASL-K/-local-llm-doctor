@@ -1,0 +1,40 @@
+name: Tests
+
+# v0.5.3 GitHub Action CI
+# - push to main: 跑 tsc + vitest
+# - pull_request: 跑 tsc + vitest
+# - manual: workflow_dispatch 触发
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: tsc + vitest (Node 20)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript check
+        run: npx tsc --noEmit
+
+      - name: Run tests
+        run: npx vitest run --reporter=verbose
+
+      - name: Build
+        run: npm run build
