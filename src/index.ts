@@ -1,8 +1,8 @@
 // =====================================================================
-// src/index.ts — Main entry (v0.2)
+// src/index.ts — Main entry (v0.4.2b)
 //
-// v0.2 完整流程：
-//   1. parse CLI args (--json / --debug)
+// v0.4.2b 完整流程：
+//   1. parse CLI args (--json / --debug / --lang <zh|en> / --help)
 //   2. detect hardware (5 detectors parallel)
 //   3. load model table
 //   4. match all models
@@ -11,6 +11,7 @@
 //      - default: 美化表格 (cli-table3 + chalk colors)
 //      - --json:  原始 JSON
 //      - --debug: 表格 + 完整硬件 JSON
+//      - --lang:  输出语言 (zh / en，默认 zh)
 // =====================================================================
 
 import { detectHardware, selectPrimaryGpu } from './detect/index.js';
@@ -20,35 +21,58 @@ import { recommend } from './recommend/recommend.js';
 import { renderFull } from './output/table.js';
 import { logger } from './utils/logger.js';
 import { colorizeSuccess } from './output/format.js';
+import { t, type Lang, DEFAULT_LANG, SUPPORTED_LANGS } from './i18n/strings.js';
 
 /**
  * 解析命令行参数
  * 支持：
- *   --json    输出原始 JSON
- *   --debug   表格 + 完整硬件 JSON
- *   --help    显示帮助
+ *   --json         输出原始 JSON
+ *   --debug        表格 + 完整硬件 JSON
+ *   --lang <lang>  输出语言 (zh / en)，默认 zh
+ *   --help         显示帮助
  */
-function parseArgs(): { json: boolean; debug: boolean; help: boolean } {
+function parseArgs(): {
+  json: boolean;
+  debug: boolean;
+  help: boolean;
+  lang: Lang;
+} {
   const args = process.argv.slice(2);
+  let lang: Lang = DEFAULT_LANG;
+
+  const langIdx = args.findIndex(a => a === '--lang' || a === '-l');
+  if (langIdx !== -1 && args[langIdx + 1]) {
+    const requested = args[langIdx + 1]!.toLowerCase();
+    if (SUPPORTED_LANGS.includes(requested as Lang)) {
+      lang = requested as Lang;
+    } else {
+      // 不支持的语言：警告 + 落到默认
+      console.error(`${colorizeSuccess()} Warning: unsupported language "${requested}", fallback to ${DEFAULT_LANG}`);
+    }
+  }
+
   return {
     json: args.includes('--json'),
     debug: args.includes('--debug'),
     help: args.includes('--help') || args.includes('-h'),
+    lang,
   };
 }
 
-function printHelp(): void {
-  console.log(`local-llm-doctor v0.2 — 我电脑能跑哪个 LLM？
+function printHelp(lang: Lang = DEFAULT_LANG): void {
+  console.log(`${t('appName', lang)} v0.4.2 — ${t('title', lang)}
 
-Usage:
-  local-llm-doctor              美化表格输出（默认）
-  local-llm-doctor --json       原始 JSON 输出（脚本友好）
-  local-llm-doctor --debug      表格 + 完整硬件信息
-  local-llm-doctor --help       显示帮助
+${t('cli.usage.title', lang)}:
+  local-llm-doctor                  ${t('cli.usage.default', lang)}
+  local-llm-doctor --json           ${t('cli.usage.json', lang)}
+  local-llm-doctor --debug          ${t('cli.usage.debug', lang)}
+  local-llm-doctor --lang <zh|en>   ${t('cli.usage.lang', lang)}
+  local-llm-doctor --help           ${t('cli.usage.help', lang)}
 
-示例:
+${t('cli.example.title', lang)}:
   $ local-llm-doctor
   $ local-llm-doctor --json | jq '.recommendations.balanced[0]'
+  $ local-llm-doctor --lang en
 `);
 }
 
@@ -58,37 +82,37 @@ Usage:
 export async function main(): Promise<void> {
   const opts = parseArgs();
   if (opts.help) {
-    printHelp();
+    printHelp(opts.lang);
     return;
   }
 
   const start = Date.now();
-  console.log(`${colorizeSuccess()} local-llm-doctor v0.2`);
-  console.log(`${colorizeSuccess()} 正在检测硬件...`);
+  console.log(`${colorizeSuccess()} ${t('appName', opts.lang)} v0.4.2`);
+  console.log(`${colorizeSuccess()} ${t('status.detecting', opts.lang)}`);
 
   try {
     // 1. 检测硬件
     const hw = await detectHardware();
     const detectMs = Date.now() - start;
-    console.log(`${colorizeSuccess()} 硬件检测完成（${detectMs}ms）`);
+    console.log(`${colorizeSuccess()} ${t('status.detectDone', opts.lang, { ms: detectMs })}`);
 
     // 2. 加载模型表
     const table = await getTable();
-    console.log(`${colorizeSuccess()} 已加载 ${table.models.length} 个模型`);
+    console.log(`${colorizeSuccess()} ${t('status.modelsLoaded', opts.lang, { n: table.models.length })}`);
 
     // 3. 匹配所有模型
     const matches = matchAll(table, hw);
-    console.log(`${colorizeSuccess()} 匹配完成（${matches.length} 个模型能跑）`);
+    console.log(`${colorizeSuccess()} ${t('status.matchDone', opts.lang, { n: matches.length })}`);
 
     // 4. 3 档推荐
-    const rec = recommend(matches, hw);
+    const rec = recommend(matches, hw, opts.lang);
 
     const totalMs = Date.now() - start;
-    console.log(`${colorizeSuccess()} 推荐生成（总耗时 ${totalMs}ms）`);
+    console.log(`${colorizeSuccess()} ${t('status.recommendDone', opts.lang, { ms: totalMs })}`);
     console.log();
 
     if (opts.json) {
-      // JSON 模式
+      // JSON 模式（JSON 模式只输出中文，英文不混合，避免脚本错乱）
       const output = {
         hardware: {
           os: hw.os,
@@ -117,13 +141,13 @@ export async function main(): Promise<void> {
       };
       console.log(JSON.stringify(output, null, 2));
     } else {
-      // 默认美化表格
-      console.log(renderFull(hw, rec));
+      // 默认美化表格（支持 --lang 切语言）
+      console.log(renderFull(hw, rec, opts.lang));
 
       if (opts.debug) {
         // 调试模式：表格 + 完整硬件 JSON
         console.log();
-        console.log('── 调试：完整硬件信息 ────────────────────────────────────────────────────');
+        console.log('── ' + t('section.debug', opts.lang) + ' ' + '─'.repeat(60));
         console.log(JSON.stringify(hw, null, 2));
       }
     }
