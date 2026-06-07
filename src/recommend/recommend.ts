@@ -24,10 +24,11 @@ import type { HardwareProfile } from '../types.js';
 const TOP_N_PER_TIER = 3;
 
 /**
- * 按 tier 过滤 MatchResult
+ * 按 tier_dynamic 过滤 MatchResult（v0.3.2 引入）
+ * 不再使用 model.tierFlags（预定义档位）
  */
-function filterByTier(matches: MatchResult[], tier: 'conservative' | 'balanced' | 'aggressive'): MatchResult[] {
-  return matches.filter(m => m.tierFlags[tier]);
+function filterByTierDynamic(matches: MatchResult[], tier: 'conservative' | 'balanced' | 'aggressive'): MatchResult[] {
+  return matches.filter(m => m.tierDynamic === tier);
 }
 
 /**
@@ -120,9 +121,9 @@ function buildFallback(
  *   console.log(rec.balanced[0].modelName);  // "Qwen3-8B"
  */
 export function recommend(allMatches: MatchResult[], hardware: HardwareProfile): RecommendedModels {
-  const conservative = topN(filterByTier(allMatches, 'conservative'), TOP_N_PER_TIER);
-  const balanced = topN(filterByTier(allMatches, 'balanced'), TOP_N_PER_TIER);
-  const aggressive = topN(filterByTier(allMatches, 'aggressive'), TOP_N_PER_TIER);
+  const conservative = topN(filterByTierDynamic(allMatches, 'conservative'), TOP_N_PER_TIER);
+  const balanced = topN(filterByTierDynamic(allMatches, 'balanced'), TOP_N_PER_TIER);
+  const aggressive = topN(filterByTierDynamic(allMatches, 'aggressive'), TOP_N_PER_TIER);
 
   const fallback = buildFallback(allMatches, hardware);
 

@@ -29,6 +29,7 @@ import type {
   QuantLevelName,
   HardwareKey,
   FitLevel,
+  Tier,
 } from './types.js';
 
 const QUANT_ORDER: QuantLevelName[] = ['Q2_K', 'Q3_K_M', 'Q4_K_M', 'Q5_K_M', 'Q6_K', 'Q8_0'];
@@ -111,6 +112,31 @@ function calcFitLevel(targetVram: number, vramMin: number): FitLevel {
 }
 
 /**
+ * 内部：根据 vramMin 动态决定档位（v0.3.2 引入）
+ * 算法：基于"该模型在最优量化下需要多少显存"决定档位
+ *   - < 6GB  → 保守档（极小模型，5.64GB 这类用户也能跑）
+ *   - 6-14GB → 平衡档（中等模型，主流用户）
+ *   - >= 14GB → 激进档（大模型，高配用户）
+ *
+ * 阈值依据（v0.3.2 Windows 真实数据）：
+ *   - 5.64GB / 3.87GB 用户的最小 vramMin 是 4GB（Q4_K_M）
+ *   - 如果阈值 = 4：conservative 永远空
+ *   - 阈值 = 6：Q4_K_M (4-5GB) 算 conservative，主流用户有内容
+ *   - 阈值 = 12：Q4_K_M 11GB 算 balanced，大模型 Q5_K_M 24GB 算 aggressive
+ *
+ * 为什么用 vramMin（最优量化下的最小需求）而不是 active_b：
+ *   - vramMin 已经反映"能不能舒服跑"
+ *   - 1.7B Q4_K_M (4GB) 算 conservative
+ *   - 14B Q4_K_M (11GB) 算 balanced
+ *   - 32B Q4_K_M (22GB) 算 aggressive
+ */
+function calcTierDynamic(vramMin: number): Tier {
+  if (vramMin < 6) return 'conservative';
+  if (vramMin < 14) return 'balanced';
+  return 'aggressive';
+}
+
+/**
  * 内部：构造 reason 字符串
  */
 function buildReason(fitLevel: FitLevel, _model: ModelEntry, level: QuantLevelName, vramAvail: number, _vramMin: number): string {
@@ -156,6 +182,9 @@ export function matchModel(model: ModelEntry, hardware: HardwareProfile): MatchR
   // 6. 构造 reason
   const reason = buildReason(fitLevel, model, best.level, targetVram, best.info.vram_min);
 
+  // 7. 动态档位（v0.3.2 新加）
+  const tierDynamic = calcTierDynamic(best.info.vram_min);
+
   return {
     modelId: model.id,
     modelName: model.name,
@@ -168,6 +197,7 @@ export function matchModel(model: ModelEntry, hardware: HardwareProfile): MatchR
     vramMin: best.info.vram_min,
     vramAvailable: targetVram,
     bestFor: model.best_for,
+    tierDynamic,
     tierFlags: {
       conservative: model.tier_conservative,
       balanced: model.tier_balanced,

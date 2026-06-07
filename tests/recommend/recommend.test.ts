@@ -29,19 +29,21 @@ describe('recommend 3-tier + fallback', () => {
     expect(rec.fallback.reason).toBeTruthy();
   });
 
-  it('RTX 3060 12GB user gets all 3 tiers populated', async () => {
+  it('RTX 3060 12GB user gets conservative + balanced (no aggressive)', async () => {
     const table = await getTable();
     const matches = matchAll(table, gaming);
     const rec = recommend(matches, gaming);
 
+    // 12GB 显存：能跑 1.7B-14B（conservative + balanced），但跑不动 32B / 70B（aggressive）
+    // v0.3.2 tier_dynamic 算法：vramMin < 6=conservative, 6-14=balanced, >= 14=aggressive
     expect(rec.conservative.length).toBeGreaterThan(0);
     expect(rec.balanced.length).toBeGreaterThan(0);
-    expect(rec.aggressive.length).toBeGreaterThan(0);
+    // aggressive 期望 0：12GB 跑不动 14GB+ 显存需求的模型
+    expect(rec.aggressive.length).toBe(0);
 
     // 每档最多 3 个（TOP_N_PER_TIER）
     expect(rec.conservative.length).toBeLessThanOrEqual(3);
     expect(rec.balanced.length).toBeLessThanOrEqual(3);
-    expect(rec.aggressive.length).toBeLessThanOrEqual(3);
 
     // 兜底应该建议 API（12GB 跑 70B 不够）
     expect(rec.fallback.apiAlternatives.length).toBeGreaterThan(0);

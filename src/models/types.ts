@@ -108,6 +108,17 @@ export interface ModelTable {
 export type FitLevel = 'perfect' | 'comfortable' | 'tight' | 'too_tight' | 'no';
 
 /**
+ * 3 档推荐的"档名"。
+ * - conservative: 极小模型（< 4GB 显存需求）
+ * - balanced:     中等模型（4-12GB 显存需求）
+ * - aggressive:   大模型（>= 12GB 显存需求）
+ *
+ * 档位**由 model 的 vramMin 动态决定**（v0.3.2 引入），
+ * 不再依赖 model.tierFlags 预定义。
+ */
+export type Tier = 'conservative' | 'balanced' | 'aggressive';
+
+/**
  * 匹配结果。
  *  - modelId / modelName：哪个模型
  *  - quantLevel：推荐的量化等级
@@ -116,6 +127,8 @@ export type FitLevel = 'perfect' | 'comfortable' | 'tight' | 'too_tight' | 'no';
  *  - estimatedTps：估算速度
  *  - qualityScore：质量分
  *  - vramMin / vramAvailable：用于 debug 输出
+ *  - tierDynamic：v0.3.2 新加，3 档由 vramMin 动态决定
+ *  - tierFlags：保留 v0.1 / v0.2 字段（向后兼容），但不再影响 recommend
  */
 export interface MatchResult {
   modelId: string;
@@ -132,7 +145,9 @@ export interface MatchResult {
   vramAvailable: number;
   /** 适合场景（best_for）*/
   bestFor: string[];
-  /** 是否为该 tier 启用（conservative / balanced / aggressive）*/
+  /** v0.3.2 动态档位（推荐层用这个）*/
+  tierDynamic: Tier;
+  /** v0.1/v0.2 model 预定义档位（保留兼容，不再影响推荐）*/
   tierFlags: {
     conservative: boolean;
     balanced: boolean;
