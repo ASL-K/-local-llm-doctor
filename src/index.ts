@@ -142,7 +142,7 @@ export async function main(): Promise<void> {
       console.log(JSON.stringify(output, null, 2));
     } else {
       // 默认美化表格（支持 --lang 切语言）
-      console.log(renderFull(hw, rec, opts.lang));
+      console.log(renderFull(hw, rec, opts.lang, totalMs, table.models.length));
 
       if (opts.debug) {
         // 调试模式：表格 + 完整硬件 JSON

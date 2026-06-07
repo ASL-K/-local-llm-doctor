@@ -59,25 +59,23 @@ describe('renderHardware: lang parameter (v0.4.2a)', () => {
   });
 });
 
-describe('renderRecommendations: lang parameter (v0.4.2a)', () => {
-  it('zh: shows Chinese tier names', async () => {
+describe('renderRecommendations: lang parameter (v0.4.2a + v0.4.5)', () => {
+  it('zh: shows Chinese tier descriptions', async () => {
     const table = await getTable();
     const matches = matchAll(table, wslUser);
     const rec = recommend(matches, wslUser, 'zh');
     const out = renderRecommendations(rec, 'zh');
-    expect(out).toContain('保守');
-    expect(out).toContain('平衡');
-    expect(out).toContain('激进');
+    // v0.4.5: 标题用 tier desc（开箱即用/默认推荐/高配挑战），不再双语并列档名
+    expect(out).toContain('开箱即用');
+    expect(out).toContain('默认推荐');
+    expect(out).toContain('高配挑战');
   });
 
-  it('en: shows English tier names', async () => {
+  it('en: shows English tier descriptions', async () => {
     const table = await getTable();
     const matches = matchAll(table, wslUser);
     const rec = recommend(matches, wslUser, 'en');
     const out = renderRecommendations(rec, 'en');
-    expect(out).toContain('Conservative');
-    expect(out).toContain('Balanced');
-    expect(out).toContain('Aggressive');
     expect(out).toContain('out-of-the-box');
     expect(out).toContain('recommended');
     expect(out).toContain('high-end');
@@ -88,7 +86,7 @@ describe('renderRecommendations: lang parameter (v0.4.2a)', () => {
     const matches = matchAll(table, wslUser);
     const rec = recommend(matches, wslUser, 'en');
     const out = renderRecommendations(rec, 'en');
-    expect(out).toContain('Tier');
+    // v0.4.5: 删了第 1 列 "Tier"（标题已用 emoji 标识）
     expect(out).toContain('Model');
     expect(out).toContain('Quant');
     expect(out).toContain('Fit');
@@ -96,16 +94,17 @@ describe('renderRecommendations: lang parameter (v0.4.2a)', () => {
   });
 });
 
-describe('renderFull: lang parameter (v0.4.2a)', () => {
+describe('renderFull: lang parameter (v0.4.2a + v0.4.5)', () => {
   it('en: full English output', async () => {
     const table = await getTable();
     const matches = matchAll(table, wslUser);
     const rec = recommend(matches, wslUser, 'en');
-    const out = renderFull(wslUser, rec, 'en');
+    const out = renderFull(wslUser, rec, 'en', 230, table.models.length);
     expect(out).toContain('Hardware');
     expect(out).toContain('Recommendations');
     expect(out).toContain('Memory');
-    expect(out).toContain('Conservative');
+    expect(out).toContain('out-of-the-box');
+    // v0.4.5: renderFull 不再用 'Conservative' 字样（用 'out-of-the-box' 描述代替）
     // 关键：整段输出不应该有中文
     expect(out).not.toContain('硬件信息');
     expect(out).not.toContain('推荐结果');
