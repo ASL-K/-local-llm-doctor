@@ -1,0 +1,428 @@
+{
+  "version": "2026-06-07",
+  "models": [
+    {
+      "id": "qwen3-1.7b",
+      "name": "Qwen3-1.7B",
+      "family": "Qwen3",
+      "params_b": 1.7,
+      "active_b": 1.7,
+      "type": "dense",
+      "context_k": 32,
+      "quant_levels": {
+        "Q4_K_M": { "vram_min": 2, "ram_min": 2, "quality_score": 52 },
+        "Q5_K_M": { "vram_min": 3, "ram_min": 3, "quality_score": 56 },
+        "Q8_0":   { "vram_min": 4, "ram_min": 4, "quality_score": 60 }
+      },
+      "tps_estimate": {
+        "m3_pro_18gb":   35,
+        "rtx_4090_24gb": 60,
+        "rtx_3090_24gb": 55,
+        "rtx_3060_12gb": 35,
+        "rtx_4060_8gb":  40,
+        "cpu_8c_32gb":   22,
+        "cpu_4c_16gb":   12,
+        "cpu_2c_8gb":    6
+      },
+      "best_for": ["中文对话", "轻量任务", "老电脑"],
+      "license": "Apache-2.0",
+      "huggingface_id": "Qwen/Qwen3-1.7B-GGUF",
+      "tier_conservative": true,
+      "tier_balanced": true,
+      "tier_aggressive": true,
+      "release_date": "2026-04"
+    },
+    {
+      "id": "qwen3-4b",
+      "name": "Qwen3-4B",
+      "family": "Qwen3",
+      "params_b": 4,
+      "active_b": 4,
+      "type": "dense",
+      "context_k": 32,
+      "quant_levels": {
+        "Q3_K_M": { "vram_min": 3, "ram_min": 3, "quality_score": 58 },
+        "Q4_K_M": { "vram_min": 4, "ram_min": 4, "quality_score": 66 },
+        "Q5_K_M": { "vram_min": 5, "ram_min": 5, "quality_score": 71 },
+        "Q8_0":   { "vram_min": 6, "ram_min": 6, "quality_score": 74 }
+      },
+      "tps_estimate": {
+        "m3_pro_18gb":   28,
+        "rtx_4090_24gb": 50,
+        "rtx_3090_24gb": 45,
+        "rtx_3060_12gb": 28,
+        "rtx_4060_8gb":  32,
+        "cpu_8c_32gb":   15,
+        "cpu_4c_16gb":   8,
+        "cpu_2c_8gb":    4
+      },
+      "best_for": ["中文对话", "日常任务"],
+      "license": "Apache-2.0",
+      "huggingface_id": "Qwen/Qwen3-4B-GGUF",
+      "tier_conservative": true,
+      "tier_balanced": true,
+      "tier_aggressive": true,
+      "release_date": "2026-04"
+    },
+    {
+      "id": "qwen3-8b",
+      "name": "Qwen3-8B",
+      "family": "Qwen3",
+      "params_b": 8,
+      "active_b": 8,
+      "type": "dense",
+      "context_k": 32,
+      "quant_levels": {
+        "Q2_K":   { "vram_min": 4, "ram_min": 4, "quality_score": 55 },
+        "Q3_K_M": { "vram_min": 5, "ram_min": 5, "quality_score": 65 },
+        "Q4_K_M": { "vram_min": 6, "ram_min": 6, "quality_score": 73 },
+        "Q5_K_M": { "vram_min": 7, "ram_min": 7, "quality_score": 78 },
+        "Q6_K":   { "vram_min": 8, "ram_min": 8, "quality_score": 80 },
+        "Q8_0":   { "vram_min": 9, "ram_min": 9, "quality_score": 82 }
+      },
+      "tps_estimate": {
+        "m3_pro_18gb":   22,
+        "rtx_4090_24gb": 40,
+        "rtx_3090_24gb": 35,
+        "rtx_3060_12gb": 20,
+        "rtx_4060_8gb":  22,
+        "cpu_8c_32gb":   12,
+        "cpu_4c_16gb":   6,
+        "cpu_2c_8gb":    3
+      },
+      "best_for": ["中文对话", "代码补全", "日常任务"],
+      "license": "Apache-2.0",
+      "huggingface_id": "Qwen/Qwen3-8B-GGUF",
+      "tier_conservative": true,
+      "tier_balanced": true,
+      "tier_aggressive": false,
+      "release_date": "2026-04"
+    },
+    {
+      "id": "qwen3-14b",
+      "name": "Qwen3-14B",
+      "family": "Qwen3",
+      "params_b": 14,
+      "active_b": 14,
+      "type": "dense",
+      "context_k": 32,
+      "quant_levels": {
+        "Q2_K":   { "vram_min": 7, "ram_min": 7, "quality_score": 70 },
+        "Q3_K_M": { "vram_min": 9, "ram_min": 9, "quality_score": 76 },
+        "Q4_K_M": { "vram_min": 11, "ram_min": 11, "quality_score": 80 },
+        "Q5_K_M": { "vram_min": 13, "ram_min": 13, "quality_score": 82 },
+        "Q6_K":   { "vram_min": 15, "ram_min": 15, "quality_score": 83 }
+      },
+      "tps_estimate": {
+        "m3_pro_18gb":   14,
+        "rtx_4090_24gb": 32,
+        "rtx_3090_24gb": 28,
+        "rtx_3060_12gb": 12,
+        "rtx_4060_8gb":  10,
+        "cpu_8c_32gb":   7,
+        "cpu_4c_16gb":   3
+      },
+      "best_for": ["中文推理", "代码生成", "复杂任务"],
+      "license": "Apache-2.0",
+      "huggingface_id": "Qwen/Qwen3-14B-GGUF",
+      "tier_conservative": false,
+      "tier_balanced": true,
+      "tier_aggressive": true,
+      "release_date": "2026-04"
+    },
+    {
+      "id": "qwen3-30b-a3b",
+      "name": "Qwen3-30B-A3B",
+      "family": "Qwen3",
+      "params_b": 30,
+      "active_b": 3,
+      "type": "moe",
+      "context_k": 32,
+      "quant_levels": {
+        "Q2_K":   { "vram_min": 12, "ram_min": 12, "quality_score": 75 },
+        "Q3_K_M": { "vram_min": 16, "ram_min": 16, "quality_score": 80 },
+        "Q4_K_M": { "vram_min": 20, "ram_min": 20, "quality_score": 83 },
+        "Q5_K_M": { "vram_min": 24, "ram_min": 24, "quality_score": 85 }
+      },
+      "tps_estimate": {
+        "m3_pro_18gb":   15,
+        "rtx_4090_24gb": 102,
+        "rtx_3090_24gb": 90,
+        "rtx_3060_12gb": 35,
+        "cpu_8c_32gb":   18,
+        "cpu_4c_16gb":   10
+      },
+      "best_for": ["复杂推理", "代码生成", "长上下文"],
+      "license": "Apache-2.0",
+      "huggingface_id": "Qwen/Qwen3-30B-A3B-GGUF",
+      "tier_conservative": false,
+      "tier_balanced": true,
+      "tier_aggressive": true,
+      "note": "MoE 模型：30B 总参，3B 激活参，运行时只占 3B 内存",
+      "release_date": "2026-04"
+    },
+    {
+      "id": "qwen3-32b",
+      "name": "Qwen3-32B",
+      "family": "Qwen3",
+      "params_b": 32,
+      "active_b": 32,
+      "type": "dense",
+      "context_k": 32,
+      "quant_levels": {
+        "Q2_K":   { "vram_min": 14, "ram_min": 14, "quality_score": 75 },
+        "Q3_K_M": { "vram_min": 18, "ram_min": 18, "quality_score": 80 },
+        "Q4_K_M": { "vram_min": 22, "ram_min": 22, "quality_score": 84 },
+        "Q5_K_M": { "vram_min": 26, "ram_min": 26, "quality_score": 86 }
+      },
+      "tps_estimate": {
+        "m3_pro_18gb":   6,
+        "rtx_4090_24gb": 24,
+        "rtx_3090_24gb": 22,
+        "cpu_8c_32gb":   5
+      },
+      "best_for": ["复杂推理", "高质量对话"],
+      "license": "Apache-2.0",
+      "huggingface_id": "Qwen/Qwen3-32B-GGUF",
+      "tier_conservative": false,
+      "tier_balanced": false,
+      "tier_aggressive": true,
+      "release_date": "2026-04"
+    },
+    {
+      "id": "llama-3.3-8b",
+      "name": "Llama-3.3-8B",
+      "family": "Llama",
+      "params_b": 8,
+      "active_b": 8,
+      "type": "dense",
+      "context_k": 128,
+      "quant_levels": {
+        "Q4_K_M": { "vram_min": 6, "ram_min": 6, "quality_score": 71 },
+        "Q5_K_M": { "vram_min": 7, "ram_min": 7, "quality_score": 75 },
+        "Q6_K":   { "vram_min": 8, "ram_min": 8, "quality_score": 77 },
+        "Q8_0":   { "vram_min": 9, "ram_min": 9, "quality_score": 79 }
+      },
+      "tps_estimate": {
+        "m3_pro_18gb":   22,
+        "rtx_4090_24gb": 40,
+        "rtx_3090_24gb": 35,
+        "rtx_3060_12gb": 20,
+        "rtx_4060_8gb":  22,
+        "cpu_8c_32gb":   12
+      },
+      "best_for": ["英文任务", "通用对话"],
+      "license": "Llama-3.3",
+      "huggingface_id": "meta-llama/Llama-3.3-8B-Instruct-GGUF",
+      "tier_conservative": true,
+      "tier_balanced": true,
+      "tier_aggressive": false,
+      "release_date": "2024-12"
+    },
+    {
+      "id": "llama-3.1-70b",
+      "name": "Llama-3.1-70B",
+      "family": "Llama",
+      "params_b": 70,
+      "active_b": 70,
+      "type": "dense",
+      "context_k": 128,
+      "quant_levels": {
+        "Q2_K":   { "vram_min": 28, "ram_min": 28, "quality_score": 76 },
+        "Q3_K_M": { "vram_min": 36, "ram_min": 36, "quality_score": 80 },
+        "Q4_K_M": { "vram_min": 44, "ram_min": 44, "quality_score": 83 }
+      },
+      "tps_estimate": {
+        "rtx_4090_24gb": 8,
+        "rtx_3090_24gb": 7
+      },
+      "best_for": ["复杂推理", "长上下文"],
+      "license": "Llama-3.1",
+      "huggingface_id": "meta-llama/Llama-3.1-70B-Instruct-GGUF",
+      "tier_conservative": false,
+      "tier_balanced": false,
+      "tier_aggressive": true,
+      "note": "需要双卡 RTX 4090 或量化后单卡勉强",
+      "release_date": "2024-07"
+    },
+    {
+      "id": "deepseek-v3",
+      "name": "DeepSeek-V3",
+      "family": "DeepSeek",
+      "params_b": 671,
+      "active_b": 37,
+      "type": "moe",
+      "context_k": 64,
+      "quant_levels": {
+        "Q2_K":   { "vram_min": 200, "ram_min": 200, "quality_score": 80 },
+        "Q3_K_M": { "vram_min": 260, "ram_min": 260, "quality_score": 84 },
+        "Q4_K_M": { "vram_min": 340, "ram_min": 340, "quality_score": 87 }
+      },
+      "tps_estimate": {
+        "rtx_4090_24gb": 3
+      },
+      "best_for": ["顶级推理", "代码生成", "数学"],
+      "license": "DeepSeek",
+      "huggingface_id": "deepseek-ai/DeepSeek-V3-GGUF",
+      "tier_conservative": false,
+      "tier_balanced": false,
+      "tier_aggressive": true,
+      "note": "671B 总参，37B 激活。个人用户基本跑不动，仅极激进档列出",
+      "release_date": "2024-12"
+    },
+    {
+      "id": "glm-4-9b",
+      "name": "GLM-4-9B",
+      "family": "GLM",
+      "params_b": 9,
+      "active_b": 9,
+      "type": "dense",
+      "context_k": 128,
+      "quant_levels": {
+        "Q4_K_M": { "vram_min": 7, "ram_min": 7, "quality_score": 70 },
+        "Q5_K_M": { "vram_min": 8, "ram_min": 8, "quality_score": 74 },
+        "Q6_K":   { "vram_min": 9, "ram_min": 9, "quality_score": 76 }
+      },
+      "tps_estimate": {
+        "m3_pro_18gb":   20,
+        "rtx_4090_24gb": 38,
+        "rtx_3060_12gb": 18,
+        "cpu_8c_32gb":   10
+      },
+      "best_for": ["中文对话", "通用任务"],
+      "license": "GLM-4",
+      "huggingface_id": "THUDM/glm-4-9b-chat-GGUF",
+      "tier_conservative": true,
+      "tier_balanced": true,
+      "tier_aggressive": false,
+      "release_date": "2024-06"
+    },
+    {
+      "id": "gemma-3-9b",
+      "name": "Gemma-3-9B",
+      "family": "Gemma",
+      "params_b": 9,
+      "active_b": 9,
+      "type": "dense",
+      "context_k": 32,
+      "quant_levels": {
+        "Q4_K_M": { "vram_min": 7, "ram_min": 7, "quality_score": 69 },
+        "Q5_K_M": { "vram_min": 8, "ram_min": 8, "quality_score": 73 },
+        "Q6_K":   { "vram_min": 9, "ram_min": 9, "quality_score": 75 }
+      },
+      "tps_estimate": {
+        "m3_pro_18gb":   20,
+        "rtx_4090_24gb": 38,
+        "rtx_3060_12gb": 18,
+        "cpu_8c_32gb":   10
+      },
+      "best_for": ["英文任务", "Google 生态"],
+      "license": "Gemma",
+      "huggingface_id": "google/gemma-3-9b-it-GGUF",
+      "tier_conservative": true,
+      "tier_balanced": true,
+      "tier_aggressive": false,
+      "release_date": "2025-03"
+    },
+    {
+      "id": "phi-4",
+      "name": "Phi-4 (14B)",
+      "family": "Phi",
+      "params_b": 14,
+      "active_b": 14,
+      "type": "dense",
+      "context_k": 16,
+      "quant_levels": {
+        "Q4_K_M": { "vram_min": 11, "ram_min": 11, "quality_score": 80 },
+        "Q5_K_M": { "vram_min": 13, "ram_min": 13, "quality_score": 82 }
+      },
+      "tps_estimate": {
+        "m3_pro_18gb":   14,
+        "rtx_4090_24gb": 32,
+        "cpu_8c_32gb":   7
+      },
+      "best_for": ["小模型高质量", "代码", "数学"],
+      "license": "MIT",
+      "huggingface_id": "microsoft/phi-4-GGUF",
+      "tier_conservative": false,
+      "tier_balanced": true,
+      "tier_aggressive": true,
+      "release_date": "2025-01"
+    },
+    {
+      "id": "qwen2.5-coder-7b",
+      "name": "Qwen2.5-Coder-7B",
+      "family": "Qwen",
+      "params_b": 7,
+      "active_b": 7,
+      "type": "dense",
+      "context_k": 32,
+      "quant_levels": {
+        "Q4_K_M": { "vram_min": 5, "ram_min": 5, "quality_score": 73 },
+        "Q5_K_M": { "vram_min": 6, "ram_min": 6, "quality_score": 75 }
+      },
+      "tps_estimate": {
+        "m3_pro_18gb":   24,
+        "rtx_4090_24gb": 42,
+        "cpu_8c_32gb":   13
+      },
+      "best_for": ["代码生成", "代码补全"],
+      "license": "Apache-2.0",
+      "huggingface_id": "Qwen/Qwen2.5-Coder-7B-Instruct-GGUF",
+      "tier_conservative": true,
+      "tier_balanced": true,
+      "tier_aggressive": false,
+      "release_date": "2024-09"
+    },
+    {
+      "id": "mistral-7b",
+      "name": "Mistral-7B",
+      "family": "Mistral",
+      "params_b": 7,
+      "active_b": 7,
+      "type": "dense",
+      "context_k": 32,
+      "quant_levels": {
+        "Q4_K_M": { "vram_min": 5, "ram_min": 5, "quality_score": 68 },
+        "Q5_K_M": { "vram_min": 6, "ram_min": 6, "quality_score": 71 }
+      },
+      "tps_estimate": {
+        "m3_pro_18gb":   24,
+        "rtx_4090_24gb": 42,
+        "cpu_8c_32gb":   13
+      },
+      "best_for": ["英文通用", "轻量任务"],
+      "license": "Apache-2.0",
+      "huggingface_id": "TheBloke/Mistral-7B-Instruct-v0.2-GGUF",
+      "tier_conservative": true,
+      "tier_balanced": true,
+      "tier_aggressive": false,
+      "release_date": "2023-12"
+    },
+    {
+      "id": "yi-1.5-9b",
+      "name": "Yi-1.5-9B",
+      "family": "Yi",
+      "params_b": 9,
+      "active_b": 9,
+      "type": "dense",
+      "context_k": 32,
+      "quant_levels": {
+        "Q4_K_M": { "vram_min": 7, "ram_min": 7, "quality_score": 69 },
+        "Q5_K_M": { "vram_min": 8, "ram_min": 8, "quality_score": 72 }
+      },
+      "tps_estimate": {
+        "m3_pro_18gb":   20,
+        "rtx_4090_24gb": 38,
+        "cpu_8c_32gb":   10
+      },
+      "best_for": ["中文对话"],
+      "license": "Apache-2.0",
+      "huggingface_id": "01-ai/Yi-1.5-9B-Chat-GGUF",
+      "tier_conservative": true,
+      "tier_balanced": true,
+      "tier_aggressive": false,
+      "release_date": "2024-05"
+    }
+  ]
+}
