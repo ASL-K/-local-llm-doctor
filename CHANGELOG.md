@@ -20,3 +20,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLI entry stub (bin/local-llm-doctor.js)
 - TypeScript types stub (src/types.ts)
 - Node version check (>= 18 enforced)
+- ESLint + Prettier + EditorConfig
+- CODE_OF_CONDUCT (zh-CN) + .gitattributes (LF normalization)
+- Git repository initialized at ASL-K/local-llm-doctor (pending push)
